@@ -1,0 +1,15 @@
+{
+    "users": [
+        {
+            "username": "admin",
+            "password": "admin123"
+        }
+    ],
+    "sessions": [
+        {
+            "username": "admin",
+            "token": "abcdef123456",
+            "expires": "2024-12-31T23:59:59Z"
+        }
+    ]
+}
