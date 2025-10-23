@@ -1,15 +1,19 @@
 {
-    "users": [
-        {
-            "username": "admin",
-            "password": "admin123"
-        }
-    ],
-    "sessions": [
-        {
-            "username": "admin",
-            "token": "abcdef123456",
-            "expires": "2024-12-31T23:59:59Z"
-        }
-    ]
+  "users": [
+    {
+      "username": "admin",
+      "password": "1234",
+      "favorites": [
+        "pikachu"
+      ],
+      "history": []
+    },
+    {
+      "username": "otro",
+      "password": "pass",
+      "favorites": [],
+      "history": []
+    }
+  ],
+  "sessions": []
 }

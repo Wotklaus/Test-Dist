@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Solcitidal - Login</title>
+  <title>Poketienda</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Iniciar Sesión</h1>
-  <form id="login-form">
-    <input type="text" id="username" placeholder="Usuario" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <button type="submit">Entrar</button>
-  </form>
-  <div id="login-message"></div>
+  <div class="login-container">
+    <form id="login-form" class="login-box">
+     
+      <div class="login-title">PokeStore</div>
+      <input type="text" id="username" placeholder="User" autocomplete="username" required>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit">Sign in</button>
+      <div id="login-message"></div>
+    </form>
+  </div>
   <script src="main.js"></script>
 </body>
 </html>
