@@ -13,9 +13,11 @@ app.use(express.static(path.join(__dirname, '../frontend/src')));
 
 //Routes 
 const loginRoutes = require('./src/routes/login.routes');
+const favoriteRoutes = require('./src/routes/favorite.routes');
 
 //Endpoints
 app.use('/api/login', loginRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 // Endpoint de prueba para ver si hay conexión a la base de datos
 app.get('/api/ping', async (req, res) => {

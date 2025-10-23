@@ -83,26 +83,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Modificado para enviar id y name
   function toggleFavorite(pokemonName, btn) {
     const isFavorited = btn.classList.contains('favorited');
     const method = isFavorited ? 'DELETE' : 'POST';
+
+    // Busca el objeto Pokémon por nombre en el arreglo
+    const pokemon = pokemons.find(p => p.name === pokemonName);
+
     fetch('/api/favorites', {
       method: method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify({ pokemon_name: pokemonName })
+      body: JSON.stringify({
+        pokemon_id: pokemon.id,        // Enviando el id
+        pokemon_name: pokemon.name     // Enviando el nombre
+      })
     })
       .then(res => res.json())
       .then(data => {
-        favorites = data.favorites;
+        // Actualiza favoritos como lista de nombres
+        favorites = (data.favorites || []).map(fav => fav.pokemon_name);
         btn.classList.toggle('favorited');
         btn.innerHTML = btn.classList.contains('favorited') ? "❤️" : "🤍";
       });
   }
 
-  // Load Pokémon
+  // Load Pokémon (incluyendo id)
   container.textContent = "Loading Pokémon...";
   fetch("https://pokeapi.co/api/v2/pokemon?limit=36")
     .then(response => response.json())
@@ -113,7 +122,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .then(info => ({
             name: pokemon.name,
             img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
-            type: info.types.map(t => t.type.name).join(", ")
+            type: info.types.map(t => t.type.name).join(", "),
+            id: info.id // <--- Aquí agregamos el id
           }))
       );
       Promise.all(promises).then(results => {
@@ -123,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
           .then(res => res.json())
           .then(data => {
-            favorites = data.favorites || [];
+            favorites = (data.favorites || []).map(fav => fav.pokemon_name);
             renderPokemons(pokemons);
           })
           .catch(() => {
