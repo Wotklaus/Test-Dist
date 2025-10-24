@@ -1,4 +1,4 @@
-const db = require('../db'); // Tu pool de conexión con pg
+const db = require("../config/postgres"); // Tu pool de conexión con pg
 
 class UserDAO {
   static async registerUser(userDTO) {

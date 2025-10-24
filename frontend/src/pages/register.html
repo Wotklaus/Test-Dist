@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="styles/register.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-box">
+            <h2 class="register-title">Create Account</h2>
+            <div class="register-links">
+                <span>Already have an account?</span>
+                <a href="/pages/login.html">Login here</a>
+            </div>
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="first_name">First Name *</label>
+                    <input type="text" name="first_name" id="first_name" required>
+                </div>
+                <div class="input-group">
+                    <label for="last_name">Last Name *</label>
+                    <input type="text" name="last_name" id="last_name" required>
+                </div>
+                <div class="input-group">
+                    <label for="document_id">Document ID</label>
+                    <input type="text" name="document_id" id="document_id">
+                </div>
+                <div class="input-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" name="phone" id="phone">
+                </div>
+                <div class="input-group">
+                    <label for="email">Email *</label>
+                    <input type="email" name="email" id="email" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password *</label>
+                    <input type="password" name="password" id="password" required autocomplete="new-password">
+                </div>
+                <div class="input-group">
+                    <label for="confirm_password">Confirm Password *</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required autocomplete="new-password">
+                </div>
+                <button type="submit">Create Account</button>
+            </form>
+            <div id="registerMsg"></div>
+            <div class="register-help">
+                <a href="#">Need help?</a>
+            </div>
+        </div>
+    </div>
+    <script src="../js/register.js"></script> <!-- Ajusta la ruta según tu estructura -->
+</body>
+</html>

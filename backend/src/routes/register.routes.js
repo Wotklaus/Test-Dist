@@ -1,11 +1,11 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const UserDAO = require('../dao/UserDAO');
-const UserDTO = require('../dto/UserDTO');
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const UserDAO = require("../dao/userDAO");
+const UserDTO = require("../dto/UserDTO");
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     // Validación básica
     const { first_name, last_name, document_id, phone, email, password } = req.body;
