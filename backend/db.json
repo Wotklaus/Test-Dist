@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "1234",
+      "favorites": [
+        "pikachu"
+      ],
+      "history": []
+    },
+    {
+      "username": "otro",
+      "password": "pass",
+      "favorites": [],
+      "history": []
+    }
+  ],
+  "sessions": []
+}
