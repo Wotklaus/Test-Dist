@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Poketienda</title>
-  <link rel="stylesheet" href="../pages/styles/index.css">
+  <title>PokéShop</title>
+  <link rel="stylesheet" href="./styles/index.css">
 </head>
 <body>
   <h1>Pokémon List</h1>
-  <div id="pokemon-list" class="card-container"></div>
   <div id="pagination-bar" class="pagination-bar"></div>
+  <div id="pokemon-list" class="card-container"></div>
   <div class="bottom-bar">
-  <div class="search-bar-area">
-    <input type="text" id="buscar" placeholder="Search Pokémon...">
+    <div class="search-bar-area">
+      <input type="text" id="search" placeholder="Search Pokémon...">
+    </div>
+    <button id="favorites-btn">My Favorites</button>
+    <div class="logout-area">
+      <button id="logout-btn" class="logout-btn">Log out</button>
+    </div>
   </div>
-  <div class="logout-area">
-    <button id="logout-btn" class="logout-btn">Log out</button>
-  </div>
-</div>
   <script src="../js/index.js"></script>
 </body>
 </html>

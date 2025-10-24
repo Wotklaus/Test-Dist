@@ -1,5 +1,9 @@
 console.log("Index JS working :)");
 
+document.getElementById("favorites-btn").addEventListener("click", function() {
+  window.location.href = "favorites.html";
+});
+
 document.addEventListener("DOMContentLoaded", function () {
   const container = document.getElementById("pokemon-list");
   const searchInput = document.getElementById("buscar");
@@ -9,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const userId = localStorage.getItem("userId");
 
   let currentPage = 1;
-  const PAGE_SIZE = 12;
+  const PAGE_SIZE = 8;
 
   function renderPokemons(list) {
     container.innerHTML = "";
