@@ -1,45 +1,20 @@
-console.log("Vanilla JS working :)");
+console.log("Index JS working :)");
 
-// --- LOGIN PAGE LOGIC ---
-if (window.location.pathname.endsWith("login.html")) {
-  const form = document.getElementById("login-form");
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+document.getElementById("favorites-btn").addEventListener("click", function() {
+  window.location.href = "favorites.html";
+});
 
-    fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          localStorage.setItem("username", username);
-          window.location.href = "index.html";
-        } else {
-          document.getElementById("login-message").textContent = data.message;
-        }
-      })
-      .catch(() => {
-        document.getElementById("login-message").textContent = "Server connection error";
-      });
-  });
-}
-
-// --- MAIN PAGE LOGIC ---
-if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/") {
+document.addEventListener("DOMContentLoaded", function () {
   const container = document.getElementById("pokemon-list");
   const searchInput = document.getElementById("buscar");
   let pokemons = [];
   let favorites = [];
-  const username = localStorage.getItem("username");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
   let currentPage = 1;
-  const PAGE_SIZE = 12;
+  const PAGE_SIZE = 8;
 
-  // Render Pokemon cards with pagination and favorite icon in card corner
   function renderPokemons(list) {
     container.innerHTML = "";
     if (list.length === 0) {
@@ -47,7 +22,6 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
       renderPagination(0);
       return;
     }
-    // Pagination logic: render only current page's Pokémon
     const start = (currentPage - 1) * PAGE_SIZE;
     const end = start + PAGE_SIZE;
     const pageList = list.slice(start, end);
@@ -55,9 +29,8 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
     pageList.forEach(pokemon => {
       const card = document.createElement("div");
       card.className = "poke-card";
-      card.style.position = "relative"; // Ensure relative for absolute favorite
+      card.style.position = "relative";
 
-      // Favorite button in top-right corner
       const favBtn = document.createElement("button");
       favBtn.className = "favorite-btn-corner";
       favBtn.title = "Add to favorites";
@@ -70,19 +43,16 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
       };
       card.appendChild(favBtn);
 
-      // Pokemon image
       const img = document.createElement("img");
       img.src = pokemon.img;
       img.alt = pokemon.name;
       card.appendChild(img);
 
-      // Pokemon name
       const name = document.createElement("div");
       name.className = "poke-name";
       name.textContent = pokemon.name;
       card.appendChild(name);
 
-      // Pokemon type
       const pokeType = document.createElement("div");
       pokeType.className = "poke-type";
       pokeType.textContent = "Type: " + pokemon.type;
@@ -91,11 +61,9 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
       container.appendChild(card);
     });
 
-    // Render pagination bar below cards
     renderPagination(list.length);
   }
 
-  // Pagination bar logic
   function renderPagination(total) {
     const pageCount = Math.ceil(total / PAGE_SIZE);
     const paginationBar = document.getElementById("pagination-bar");
@@ -119,45 +87,57 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
     });
   }
 
-  // Function to add/remove favorite
+  // Modificado para enviar id y name
   function toggleFavorite(pokemonName, btn) {
     const isFavorited = btn.classList.contains('favorited');
     const method = isFavorited ? 'DELETE' : 'POST';
+
+    // Busca el objeto Pokémon por nombre en el arreglo
+    const pokemon = pokemons.find(p => p.name === pokemonName);
+
     fetch('/api/favorites', {
       method: method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, pokemon: pokemonName })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        pokemon_id: pokemon.id,        // Enviando el id
+        pokemon_name: pokemon.name     // Enviando el nombre
+      })
     })
       .then(res => res.json())
       .then(data => {
-        favorites = data.favorites;
+        // Actualiza favoritos como lista de nombres
+        favorites = (data.favorites || []).map(fav => fav.pokemon_name);
         btn.classList.toggle('favorited');
         btn.innerHTML = btn.classList.contains('favorited') ? "❤️" : "🤍";
       });
   }
 
-  // Load first 30 Pokémon
+  // Load Pokémon (incluyendo id)
   container.textContent = "Loading Pokémon...";
   fetch("https://pokeapi.co/api/v2/pokemon?limit=36")
     .then(response => response.json())
     .then(data => {
-      // For each Pokémon, get its image and type
       const promises = data.results.map(pokemon =>
         fetch(pokemon.url)
           .then(res => res.json())
           .then(info => ({
             name: pokemon.name,
             img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
-            type: info.types.map(t => t.type.name).join(", ")
+            type: info.types.map(t => t.type.name).join(", "),
+            id: info.id // <--- Aquí agregamos el id
           }))
       );
       Promise.all(promises).then(results => {
         pokemons = results;
-        // Get user's favorites before rendering
-        fetch('/api/favorites?username=' + username)
+        fetch('/api/favorites', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
           .then(res => res.json())
           .then(data => {
-            favorites = data.favorites;
+            favorites = (data.favorites || []).map(fav => fav.pokemon_name);
             renderPokemons(pokemons);
           })
           .catch(() => {
@@ -171,22 +151,20 @@ if (window.location.pathname.endsWith("index.html") || window.location.pathname 
       console.error(error);
     });
 
-  // Search bar logic
   searchInput.addEventListener("input", function () {
     const filter = searchInput.value.toLowerCase();
     const filtered = pokemons.filter(p => p.name.includes(filter));
-    // Reset to page 1 when searching!
     currentPage = 1;
     renderPokemons(filtered);
   });
-}
 
-// ---- LOGOUT ----
-document.addEventListener("DOMContentLoaded", function () {
+  // ---- LOGOUT ----
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
-      localStorage.removeItem("username");
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userEmail");
       window.location.href = "login.html";
     });
   }
