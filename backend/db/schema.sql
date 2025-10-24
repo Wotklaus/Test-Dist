@@ -1,0 +1,19 @@
+-- USER ENTITY
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  document_id VARCHAR(20),
+  phone VARCHAR(20),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- FAVORITES ENTITY
+CREATE TABLE IF NOT EXISTS favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  pokemon_id INTEGER NOT NULL,
+  pokemon_name VARCHAR(100) NOT NULL
+);
