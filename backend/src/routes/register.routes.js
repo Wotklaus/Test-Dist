@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const UserDAO = require("../dao/userDAO");
-const UserDTO = require("../dto/UserDTO");
+const UserDTO = require("../dto/userDTO");
 
 const router = express.Router();
 
