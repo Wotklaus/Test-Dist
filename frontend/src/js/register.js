@@ -5,20 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Convert form data to object
     const data = Object.fromEntries(new FormData(form).entries());
 
-    // Password match validation
     if (data.password !== data.confirm_password) {
       msg.textContent = "Passwords do not match";
       msg.style.color = "red";
       return;
     }
 
-    // Remove confirm_password from data
     const { confirm_password, ...userData } = data;
 
-    // Log: Data being sent for registration
     console.log("Sending registration data:", userData);
 
     try {
@@ -35,12 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // 2. Insert additional user data into "users" table
+      // ¡AGREGA EL CAMPO id!
+      const userId = authData?.user?.id; // <- Aquí obtienes el UUID
+
       const { error: dbError } = await supabase
         .from('users')
         .insert([
           {
+            id: userId, // <- Aquí va el UUID
             email: userData.email,
-            password: userData.password, // You can hash the password for more security
+            password: userData.password,
             first_name: userData.first_name,
             last_name: userData.last_name,
             document_id: userData.document_id,
