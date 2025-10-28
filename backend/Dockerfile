@@ -13,7 +13,7 @@ RUN npm install
 # Copia todo el código del backend (incluye server.js, src, db)
 COPY . .
 
-# Expone el puerto (ejemplo: 3001, ajusta si usas otro)
+# Expone el puerto 
 EXPOSE 3000
 
 # Comando para iniciar el backend
