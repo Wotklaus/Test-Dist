@@ -2,20 +2,19 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   background: #eaf0fa;
-  min-height: 100vh;
-  /* para asegurar 100% altura */
 }
 
-.login-container {
-  min-height: 100vh;
+.register-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;  /* centra verticalmente */
-  align-items: center;      /* centra horizontalmente */
-  padding: 0;
+  align-items: center;
+  justify-content: flex-start;
+  /* Elimina el min-height y reduce/elimina el padding */
+  padding-top: 40px;
+  padding-bottom: 20px;
 }
 
-.login-box {
+.register-box {
   background: #fff;
   padding: 20px 18px 18px 18px;
   border-radius: 14px;
@@ -29,7 +28,7 @@ body {
   gap: 4px;
 }
 
-.login-title {
+.register-title {
   color: #252525;
   font-size: 1.28rem;
   font-weight: 700;
@@ -37,14 +36,14 @@ body {
   letter-spacing: 0.5px;
 }
 
-.login-links {
+.register-links {
   font-size: 0.91rem;
   margin-bottom: 7px;
   display: flex;
   gap: 5px;
   align-items: center;
 }
-.login-links a {
+.register-links a {
   color: #009191;
   text-decoration: none;
   font-weight: 600;
@@ -74,8 +73,7 @@ body {
   outline: none;
 }
 
-button[type="submit"],
-.register-btn {
+button[type="submit"] {
   width: 100%;
   background: #252525;
   color: #fff;
@@ -89,14 +87,12 @@ button[type="submit"],
   box-shadow: 0 2px 8px rgba(69,123,157,0.06);
   transition: background 0.2s, transform 0.15s;
 }
-
-button[type="submit"]:hover,
-.register-btn:hover {
+button[type="submit"]:hover {
   background: #009191;
   transform: translateY(-2px) scale(1.02);
 }
 
-#login-message {
+#registerMsg {
   color: #e63946;
   text-align: center;
   margin-top: 7px;
@@ -104,11 +100,38 @@ button[type="submit"]:hover,
   font-weight: 500;
 }
 
-.login-help {
+.register-social {
+  margin: 13px 0 7px 0;
+  text-align: center;
+  font-size: 0.97rem;
+}
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 13px;
+  margin-top: 4px;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.icon-btn img {
+  width: 25px;
+  height: 25px;
+  filter: grayscale(80%);
+  transition: filter 0.2s;
+}
+.icon-btn:hover img {
+  filter: none;
+}
+
+.register-help {
   text-align: center;
   margin-top: 6px;
 }
-.login-help a {
+.register-help a {
   color: #009191;
   text-decoration: none;
   font-size: 0.91rem;
@@ -117,7 +140,7 @@ button[type="submit"]:hover,
 
 /* Responsive: para pantallas pequeñas */
 @media (max-width: 430px) {
-  .login-box {
+  .register-box {
     min-width: unset;
     max-width: 99vw;
     padding: 12px 2vw;

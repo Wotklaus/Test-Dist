@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const pool = require("../config/postgres");
+const bcrypt = require("bcryptjs"); // <-- Importa bcryptjs
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
@@ -20,8 +21,10 @@ router.post("/", async (req, res) => {
 
     const user = result.rows[0];
 
-    // Compare password directly (not hashed, for test only)
-    if (user.password !== password) {
+    // Compare password with bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
       return res.status(401).json({ error: "Incorrect password" });
     }
 
@@ -48,7 +51,7 @@ router.post("/", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error); // <-- Agregado para depuración
+    console.error("Login error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
