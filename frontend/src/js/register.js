@@ -5,23 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Convert form data to object
     const data = Object.fromEntries(new FormData(form).entries());
 
-    // Validar contraseñas
+    // Password match validation
     if (data.password !== data.confirm_password) {
       msg.textContent = "Passwords do not match";
       msg.style.color = "red";
       return;
     }
 
-    // Crear objeto sin confirm_password
+    // Remove confirm_password from data
     const { confirm_password, ...userData } = data;
 
-    // LOG: Ver datos enviados
-    console.log("Enviando datos de registro:", userData);
+    // Log: Data being sent for registration
+    console.log("Sending registration data:", userData);
 
     try {
-      // 1. Registrar usuario en Supabase Auth
+      // 1. Register user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -33,13 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 2. Insertar datos adicionales en tabla "users"
+      // 2. Insert additional user data into "users" table
       const { error: dbError } = await supabase
         .from('users')
         .insert([
           {
             email: userData.email,
-            password: userData.password, // puedes almacenar el hash si quieres más seguridad
+            password: userData.password, // You can hash the password for more security
             first_name: userData.first_name,
             last_name: userData.last_name,
             document_id: userData.document_id,
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       msg.textContent = "Error: " + err.message;
       msg.style.color = "red";
-      console.error("Error en el registro:", err);
+      console.error("Registration error:", err);
     }
   });
 });
