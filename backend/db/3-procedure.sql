@@ -19,6 +19,30 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+-- =============================================
+--                  Users 
+-- =============================================
+--registrar usuario
+CREATE OR REPLACE FUNCTION register_user(
+  p_first_name VARCHAR,
+  p_last_name VARCHAR,
+  p_document_id VARCHAR,
+  p_phone VARCHAR,
+  p_email VARCHAR,
+  p_password VARCHAR
+) RETURNS INTEGER AS $$
+DECLARE
+  new_user_id INTEGER;
+BEGIN
+  INSERT INTO users (first_name, last_name, document_id, phone, email, password)
+  VALUES (p_first_name, p_last_name, p_document_id, p_phone, p_email, p_password)
+  RETURNING id INTO new_user_id;
+
+  RETURN new_user_id;
+END;
+$$ LANGUAGE plpgsql;
+
 -- =============================================
 --                  Favorite Pokemons
 -- =============================================
@@ -48,3 +72,4 @@ BEGIN
   SELECT favorites.pokemon_id, favorites.pokemon_name FROM favorites WHERE favorites.user_id = uid;
 END;
 $$ LANGUAGE plpgsql;
+

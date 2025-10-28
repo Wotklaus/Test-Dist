@@ -3,6 +3,17 @@ console.log("Login JS working :)");
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("login-form");
   if (!form) return;
+
+  // Limpia mensaje cuando el usuario escribe
+  ["username", "password"].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener("input", () => {
+        document.getElementById("login-message").textContent = "";
+      });
+    }
+  });
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     const email = document.getElementById("username").value;

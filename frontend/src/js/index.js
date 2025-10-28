@@ -1,12 +1,16 @@
 console.log("Index JS working :)");
 
-document.getElementById("favorites-btn").addEventListener("click", function() {
-  window.location.href = "favorites.html";
-});
-
 document.addEventListener("DOMContentLoaded", function () {
+  // FAVORITES BUTTON
+  const favoritesBtn = document.getElementById("favorites-btn");
+  if (favoritesBtn) {
+    favoritesBtn.addEventListener("click", function () {
+      window.location.href = "favorites.html";
+    });
+  }
+
   const container = document.getElementById("pokemon-list");
-  const searchInput = document.getElementById("buscar");
+  const searchInput = document.getElementById("search"); // ID debe coincidir con el HTML
   let pokemons = [];
   let favorites = [];
   const token = localStorage.getItem("token");
@@ -151,12 +155,15 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error(error);
     });
 
-  searchInput.addEventListener("input", function () {
-    const filter = searchInput.value.toLowerCase();
-    const filtered = pokemons.filter(p => p.name.includes(filter));
-    currentPage = 1;
-    renderPokemons(filtered);
-  });
+  // --- SEARCH BAR ---
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      const filtered = pokemons.filter(p => p.name.includes(filter));
+      currentPage = 1;
+      renderPokemons(filtered);
+    });
+  }
 
   // ---- LOGOUT ----
   const logoutBtn = document.getElementById("logout-btn");
