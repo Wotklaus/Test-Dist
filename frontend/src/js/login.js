@@ -14,29 +14,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
     const email = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("userId", data.user.id);
-          localStorage.setItem("userEmail", data.user.email);
-          window.location.href = "index.html";
-        } else {
-          document.getElementById("login-message").textContent = data.error || "Login failed";
-        }
-      })
-      .catch(() => {
-        document.getElementById("login-message").textContent = "Server connection error";
-      });
+    // LOGIN con Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      document.getElementById("login-message").textContent = error.message || "Login failed";
+      return;
+    }
+
+    // Guardar datos en localStorage
+    localStorage.setItem("token", data.session.access_token);
+    localStorage.setItem("userId", data.user.id);
+    localStorage.setItem("userEmail", data.user.email);
+
+    window.location.href = "index.html";
   });
 });

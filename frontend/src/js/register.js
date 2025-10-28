@@ -21,32 +21,44 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Enviando datos de registro:", userData);
 
     try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+      // 1. Registrar usuario en Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
       });
 
-      // LOG: Respuesta cruda
-      console.log("Respuesta HTTP:", response);
-
-      const resData = await response.json();
-
-      // LOG: Contenido de la respuesta
-      console.log("Respuesta del servidor:", resData);
-
-      if (response.ok) {
-        msg.textContent = "Registration successful!";
-        msg.style.color = "green";
-        form.reset();
-      } else {
-        msg.textContent = resData.error || "Registration failed";
+      if (authError) {
+        msg.textContent = authError.message || "Registration failed";
         msg.style.color = "red";
+        return;
       }
+
+      // 2. Insertar datos adicionales en tabla "users"
+      const { error: dbError } = await supabase
+        .from('users')
+        .insert([
+          {
+            email: userData.email,
+            password: userData.password, // puedes almacenar el hash si quieres más seguridad
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            document_id: userData.document_id,
+            phone: userData.phone,
+          }
+        ]);
+
+      if (dbError) {
+        msg.textContent = dbError.message || "Registration error in database";
+        msg.style.color = "red";
+        return;
+      }
+
+      msg.textContent = "Registration successful!";
+      msg.style.color = "green";
+      form.reset();
     } catch (err) {
-      msg.textContent = "Server error: " + err.message;
+      msg.textContent = "Error: " + err.message;
       msg.style.color = "red";
-      // LOG: Error de red o fetch
       console.error("Error en el registro:", err);
     }
   });

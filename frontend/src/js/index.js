@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("search"); // ID debe coincidir con el HTML
   let pokemons = [];
   let favorites = [];
-  const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
   let currentPage = 1;
@@ -43,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         favBtn.classList.add("favorited");
       }
       favBtn.onclick = function () {
-        toggleFavorite(pokemon.name, favBtn);
+        toggleFavorite(pokemon, favBtn);
       };
       card.appendChild(favBtn);
 
@@ -91,32 +90,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Modificado para enviar id y name
-  function toggleFavorite(pokemonName, btn) {
+  // Usar Supabase para favoritos
+  async function toggleFavorite(pokemon, btn) {
     const isFavorited = btn.classList.contains('favorited');
-    const method = isFavorited ? 'DELETE' : 'POST';
 
-    // Busca el objeto Pokémon por nombre en el arreglo
-    const pokemon = pokemons.find(p => p.name === pokemonName);
+    if (!userId) {
+      alert("Please log in.");
+      return;
+    }
 
-    fetch('/api/favorites', {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        pokemon_id: pokemon.id,        // Enviando el id
-        pokemon_name: pokemon.name     // Enviando el nombre
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Actualiza favoritos como lista de nombres
-        favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-        btn.classList.toggle('favorited');
-        btn.innerHTML = btn.classList.contains('favorited') ? "❤️" : "🤍";
-      });
+    if (isFavorited) {
+      // QUITAR favorito
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('pokemon_id', pokemon.id);
+
+      if (!error) {
+        favorites = favorites.filter(name => name !== pokemon.name);
+        btn.classList.remove('favorited');
+        btn.innerHTML = "🤍";
+      }
+    } else {
+      // AGREGAR favorito
+      const { error } = await supabase
+        .from('favorites')
+        .insert([
+          { user_id: userId, pokemon_id: pokemon.id, pokemon_name: pokemon.name }
+        ]);
+
+      if (!error) {
+        favorites.push(pokemon.name);
+        btn.classList.add('favorited');
+        btn.innerHTML = "❤️";
+      }
+    }
+  }
+
+  // Cargar la lista de favoritos del usuario desde Supabase
+  async function loadFavorites() {
+    if (!userId) return [];
+    const { data, error } = await supabase
+      .from('favorites')
+      .select('pokemon_name')
+      .eq('user_id', userId);
+
+    if (error) return [];
+    return (data || []).map(fav => fav.pokemon_name);
   }
 
   // Load Pokémon (incluyendo id)
@@ -134,20 +155,10 @@ document.addEventListener("DOMContentLoaded", function () {
             id: info.id // <--- Aquí agregamos el id
           }))
       );
-      Promise.all(promises).then(results => {
+      Promise.all(promises).then(async results => {
         pokemons = results;
-        fetch('/api/favorites', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        })
-          .then(res => res.json())
-          .then(data => {
-            favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-            renderPokemons(pokemons);
-          })
-          .catch(() => {
-            favorites = [];
-            renderPokemons(pokemons);
-          });
+        favorites = await loadFavorites();
+        renderPokemons(pokemons);
       });
     })
     .catch(error => {
