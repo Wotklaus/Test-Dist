@@ -225,6 +225,30 @@ h1 {
   transform: translateY(-2px) scale(1.025);
 }
 
+#articles-btn {
+  background: #232526;
+  color: #fff;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.06rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(35,37,38,0.09);
+  transition: background 0.14s, transform 0.12s, box-shadow 0.14s;
+  letter-spacing: 0.07px;
+  outline: none;
+  margin-left: 0;
+}
+
+#articles-btn:hover,
+#articles-btn:focus {
+  background: #566375;
+  color: #fff;
+  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 6px 16px rgba(60,72,88,0.13);
+}
+
 @media (max-width: 700px) {
   .bottom-bar {
     flex-direction: column;

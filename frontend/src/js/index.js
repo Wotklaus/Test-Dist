@@ -190,61 +190,61 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // === CONTENTFUL ARTICLES SECTION ===
-  const spaceId = 'v6xedn2etntd'; // <-- Reemplaza con tu Space ID
-  const accessToken = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1XY6gTk'; // <-- Reemplaza con tu Access Token
+  // === CONTENTFUL ARTICLES BUTTON ===
+  const articlesBtn = document.getElementById("articles-btn");
+
+  const spaceId = 'v6xedn2etntd';
+  const accessToken = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1XY6gTk';
 
   async function fetchArticlesWithAssets() {
-    const res = await fetch(`https://cdn.contentful.com/spaces/${spaceId}/entries?access_token=${accessToken}&content_type=ArticuloPokemon&include=1`);
-    const data = await res.json();
-    const assets = (data.includes && data.includes.Asset)
-      ? Object.fromEntries(data.includes.Asset.map(a => [a.sys.id, a]))
-      : {};
-    return data.items.map(article => {
-      let imageUrl = "";
-      if (article.fields.imagenPrincipal && article.fields.imagenPrincipal.sys) {
-        const asset = assets[article.fields.imagenPrincipal.sys.id];
-        if (asset && asset.fields && asset.fields.file && asset.fields.file.url) {
-          imageUrl = "https:" + asset.fields.file.url;
-        }
+    try {
+      const res = await fetch(`https://cdn.contentful.com/spaces/${spaceId}/entries?access_token=${accessToken}&content_type=ArticuloPokemon&include=1`);
+      const data = await res.json();
+      // DEBUG: para ver qué trae la respuesta
+      console.log('Contentful response:', data);
+      const assets = (data.includes && data.includes.Asset)
+        ? Object.fromEntries(data.includes.Asset.map(a => [a.sys.id, a]))
+        : {};
+      const items = data.items || [];
+      if (!Array.isArray(items)) {
+        console.error("No items array returned from Contentful:", data);
+        return [];
       }
-      return {
-        title: article.fields.title,
-        author: article.fields.author || "",
-        date: article.fields.fechaPublicacion || "",
-        content: article.fields.content || "",
-        slug: article.fields.slug || "",
-        image: imageUrl
-      };
+      return items.map(article => {
+        let imageUrl = "";
+        if (article.fields.imagenPrincipal && article.fields.imagenPrincipal.sys) {
+          const asset = assets[article.fields.imagenPrincipal.sys.id];
+          if (asset && asset.fields && asset.fields.file && asset.fields.file.url) {
+            imageUrl = "https:" + asset.fields.file.url;
+          }
+        }
+        return {
+          title: article.fields.title,
+          author: article.fields.author || "",
+          date: article.fields.fechaPublicacion || "",
+          content: article.fields.content || "",
+          slug: article.fields.slug || "",
+          image: imageUrl
+        };
+      });
+    } catch (err) {
+      console.error("Fetch Contentful error:", err);
+      return [];
+    }
+  }
+
+  // Cuando presionas el botón, muestra los artículos en un alert (puedes mejorar esto)
+  if (articlesBtn) {
+    articlesBtn.addEventListener("click", async function () {
+      const articles = await fetchArticlesWithAssets();
+      if (!articles || articles.length === 0) {
+        alert("No articles found");
+        return;
+      }
+      // Muestra los títulos de los artículos en un alert
+      const titles = articles.map(a => a.title).join('\n');
+      alert("Artículos de Contentful:\n\n" + titles);
     });
   }
-
-  function renderArticles(articles) {
-    const container = document.getElementById('articles-list');
-    if (!container) return;
-    if (articles.length === 0) {
-      container.innerHTML = "<p>No articles found</p>";
-      return;
-    }
-    container.innerHTML = articles.map(a => `
-      <div class="article-card">
-        ${a.image ? `<img src="${a.image}" alt="${a.title}">` : ""}
-        <h3>${a.title}</h3>
-        <div class="article-meta">
-          <span><b>Author:</b> ${a.author}</span> | 
-          <span><b>Date:</b> ${a.date}</span>
-        </div>
-        <p>${a.content.slice(0, 140)}${a.content.length > 140 ? "..." : ""}</p>
-        <button class="article-read-btn" onclick="showArticleDetail('${a.slug}')">Read more</button>
-      </div>
-    `).join('');
-  }
-
-  window.showArticleDetail = function(slug) {
-    alert("Aquí mostrarías el artículo completo para el slug: " + slug);
-  };
-
-  // Ejecuta al cargar la página
-  fetchArticlesWithAssets().then(renderArticles);
 
 });
