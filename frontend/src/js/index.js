@@ -198,8 +198,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchArticlesWithAssets() {
     try {
-      const res = await fetch(`https://cdn.contentful.com/spaces/${spaceId}/entries?access_token=${accessToken}&content_type=ArticuloPokemon`);
-      const data = await res.json();
+      const res = await fetch(`https://cdn.contentful.com/spaces/v6xedn2etntd/entries?access_token=TU_TOKEN&content_type=ArticuloPokemon`);
       // DEBUG: para ver qué trae la respuesta
       console.log('Contentful response:', data);
       const assets = (data.includes && data.includes.Asset)
