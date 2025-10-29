@@ -1,4 +1,3 @@
-
 <script>
   if (!localStorage.getItem("token")) {
     window.location.href = "login.html";
@@ -15,6 +14,13 @@
   <h1>Pokémon List</h1>
   <div id="pagination-bar" class="pagination-bar"></div>
   <div id="pokemon-list" class="card-container"></div>
+
+  <!-- NUEVA SECCIÓN SOLO ARTÍCULOS DE CONTENTFUL -->
+  <section id="pokemon-articles">
+    <h2>Pokémon Articles</h2>
+    <div id="articles-list"></div>
+  </section>
+
   <div class="bottom-bar">
     <div class="search-bar-area">
       <input type="text" id="search" placeholder="Search Pokémon...">

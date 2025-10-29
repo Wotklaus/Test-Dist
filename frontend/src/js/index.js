@@ -189,4 +189,62 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.href = "login.html";
     });
   }
+
+  // === CONTENTFUL ARTICLES SECTION ===
+  const spaceId = 'v6xedn2etntd'; // <-- Reemplaza con tu Space ID
+  const accessToken = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1XY6gTk'; // <-- Reemplaza con tu Access Token
+
+  async function fetchArticlesWithAssets() {
+    const res = await fetch(`https://cdn.contentful.com/spaces/${spaceId}/entries?access_token=${accessToken}&content_type=ArticuloPokemon&include=1`);
+    const data = await res.json();
+    const assets = (data.includes && data.includes.Asset)
+      ? Object.fromEntries(data.includes.Asset.map(a => [a.sys.id, a]))
+      : {};
+    return data.items.map(article => {
+      let imageUrl = "";
+      if (article.fields.imagenPrincipal && article.fields.imagenPrincipal.sys) {
+        const asset = assets[article.fields.imagenPrincipal.sys.id];
+        if (asset && asset.fields && asset.fields.file && asset.fields.file.url) {
+          imageUrl = "https:" + asset.fields.file.url;
+        }
+      }
+      return {
+        title: article.fields.title,
+        author: article.fields.author || "",
+        date: article.fields.fechaPublicacion || "",
+        content: article.fields.content || "",
+        slug: article.fields.slug || "",
+        image: imageUrl
+      };
+    });
+  }
+
+  function renderArticles(articles) {
+    const container = document.getElementById('articles-list');
+    if (!container) return;
+    if (articles.length === 0) {
+      container.innerHTML = "<p>No articles found</p>";
+      return;
+    }
+    container.innerHTML = articles.map(a => `
+      <div class="article-card">
+        ${a.image ? `<img src="${a.image}" alt="${a.title}">` : ""}
+        <h3>${a.title}</h3>
+        <div class="article-meta">
+          <span><b>Author:</b> ${a.author}</span> | 
+          <span><b>Date:</b> ${a.date}</span>
+        </div>
+        <p>${a.content.slice(0, 140)}${a.content.length > 140 ? "..." : ""}</p>
+        <button class="article-read-btn" onclick="showArticleDetail('${a.slug}')">Read more</button>
+      </div>
+    `).join('');
+  }
+
+  window.showArticleDetail = function(slug) {
+    alert("Aquí mostrarías el artículo completo para el slug: " + slug);
+  };
+
+  // Ejecuta al cargar la página
+  fetchArticlesWithAssets().then(renderArticles);
+
 });
