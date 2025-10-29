@@ -9,23 +9,94 @@
   <meta charset="UTF-8">
   <title>PokéShop</title>
   <link rel="stylesheet" href="styles/index.css">
+  <style>
+    #articles-list {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .article-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(60,72,88,0.11);
+      padding: 10px 15px;
+      min-width: 140px;
+      max-width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      justify-content: center;
+      border: 1px solid #ececec;
+    }
+    .article-card img {
+      max-width: 92%;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .article-card h3 {
+      margin: 5px 0 6px 0;
+      font-size: 1.02rem;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 170px;
+    }
+    .article-meta {
+      font-size: 0.92rem;
+      color: #566375;
+      margin-bottom: 6px;
+    }
+    .article-card p {
+      margin-top: 0;
+      margin-bottom: 7px;
+      font-size: 0.99rem;
+      color: #232526;
+      max-width: 170px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .article-read-btn {
+      background: #232526;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: 0.98rem;
+      margin-top: 2px;
+      transition: background 0.16s;
+    }
+    .article-read-btn:hover {
+      background: #566375;
+    }
+    @media (max-width: 700px) {
+      #articles-list {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .article-card {
+        min-width: 80vw;
+        max-width: 98vw;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>Pokémon List</h1>
   <div id="pagination-bar" class="pagination-bar"></div>
   <div id="pokemon-list" class="card-container"></div>
-
-  <!-- NUEVA SECCIÓN SOLO ARTÍCULOS DE CONTENTFUL -->
-  <section id="pokemon-articles">
-    <h2>Pokémon Articles</h2>
-    <div id="articles-list"></div>
-  </section>
-
   <div class="bottom-bar">
     <div class="search-bar-area">
       <input type="text" id="search" placeholder="Search Pokémon...">
     </div>
     <button id="favorites-btn">My Favorites</button>
+
+    <!-- Artículos de Contentful van aquí, entre Favorites y Log out -->
+    <div id="articles-list"></div>
+
     <div class="logout-area">
       <button id="logout-btn" class="logout-btn">Log out</button>
     </div>
