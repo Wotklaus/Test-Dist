@@ -1,6 +1,13 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  // VALIDACIÓN DE SESIÓN CON SUPABASE
+  const { data, error } = await supabase.auth.getSession();
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+  const userId = data.session.user.id;
+
   const favoritesList = document.getElementById("favorites-list");
-  const userId = localStorage.getItem("userId");
 
   // Back to index
   document.getElementById("back-btn").addEventListener("click", function() {
@@ -11,10 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 1. Get favorites from Supabase
   async function loadFavorites() {
-    if (!userId) {
-      favoritesList.textContent = "Please log in to see your favorites.";
-      return [];
-    }
     const { data, error } = await supabase
       .from('favorites')
       .select('pokemon_id')

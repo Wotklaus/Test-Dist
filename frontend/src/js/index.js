@@ -1,7 +1,15 @@
 console.log("Index JS working :)");
 
-document.addEventListener("DOMContentLoaded", function () {
-  // FAVORITES BUTTON
+document.addEventListener("DOMContentLoaded", async function () {
+  // VALIDACIÓN DE SESIÓN CON SUPABASE (redirección si no hay login)
+  const { data, error } = await supabase.auth.getSession();
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+  const userId = data.session.user.id;
+
+  // --- FAVORITES BUTTON ---
   const favoritesBtn = document.getElementById("favorites-btn");
   if (favoritesBtn) {
     favoritesBtn.addEventListener("click", function () {
@@ -10,11 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const container = document.getElementById("pokemon-list");
-  const searchInput = document.getElementById("search"); // ID debe coincidir con el HTML
+  const searchInput = document.getElementById("search");
   let pokemons = [];
   let favorites = [];
-  const userId = localStorage.getItem("userId");
-
   let currentPage = 1;
   const PAGE_SIZE = 8;
 
@@ -130,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Cargar la lista de favoritos del usuario desde Supabase
   async function loadFavorites() {
-    if (!userId) return [];
     const { data, error } = await supabase
       .from('favorites')
       .select('pokemon_name')
@@ -179,10 +184,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // ---- LOGOUT ----
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userEmail");
+    logoutBtn.addEventListener("click", async function () {
+      await supabase.auth.signOut();
       window.location.href = "login.html";
     });
   }
