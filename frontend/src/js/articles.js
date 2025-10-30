@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById('articles-list');
   container.textContent = "Loading articles...";
 
-  // Llama al fetch para obtener los artículos
+  // Trae los artículos desde Contentful
   const articles = await fetchArticlesWithAssets();
   if (!articles || articles.length === 0) {
     container.textContent = "No articles found";
@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   container.innerHTML = "";
   articles.forEach(article => {
+    // Estructura: título arriba, imagen a la izquierda, info a la derecha
     const card = document.createElement('div');
     card.className = "article-card";
     card.innerHTML = `
@@ -18,18 +19,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         ${article.image ? `<img src="${article.image}" alt="Article image" class="article-img"/>` : ""}
       </div>
       <div class="article-info">
-        <h2 class="article-title">${article.title}</h2>
-        <p class="article-content">${article.content}</p>
+        <h2 class="article-title">${article.title || ""}</h2>
+        <p class="article-content">${article.content || ""}</p>
         <div class="article-meta">
-          Autor: ${article.author} | Fecha: ${article.date}<br>
-          Pokémon relacionados: ${article.relatedPokemon}
+          ${article.author ? `${article.author}` : ""}
+          ${article.date ? `<br>${article.date}` : ""}
+          ${article.relatedPokemon ? `<br>${article.relatedPokemon}` : ""}
         </div>
       </div>
     `;
     container.appendChild(card);
   });
 
-  // Sidebar de otros artículos (puedes filtrar para no repetir el actual)
+  // Sidebar de otros artículos, fijo a la derecha
   const sidebarUl = document.getElementById('other-articles');
   sidebarUl.innerHTML = "";
   articles.forEach(article => {

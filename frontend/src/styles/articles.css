@@ -42,6 +42,15 @@ body {
   align-items: flex-start;
   border: 1px solid #ececec;
   gap: 32px;
+  margin-bottom: 38px;
+}
+
+.article-img-area {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .article-img {
@@ -50,7 +59,7 @@ body {
   border-radius: 14px;
   box-shadow: 0 2px 12px 2px rgba(60,72,88,0.08);
   object-fit: cover;
-  margin-right: 0;
+  margin-bottom: 0;
 }
 
 .article-info {
