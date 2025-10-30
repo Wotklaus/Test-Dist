@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   container.innerHTML = "";
   articles.forEach(article => {
-    // Estructura: título arriba, imagen a la izquierda, info a la derecha
+    // Estructura: imagen a la izquierda, info a la derecha
     const card = document.createElement('div');
     card.className = "article-card";
     card.innerHTML = `
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     container.appendChild(card);
   });
 
-  // Sidebar de otros artículos, fijo a la derecha
+  // Sidebar de otros artículos
   const sidebarUl = document.getElementById('other-articles');
   sidebarUl.innerHTML = "";
   articles.forEach(article => {

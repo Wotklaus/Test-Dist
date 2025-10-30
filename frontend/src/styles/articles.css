@@ -171,6 +171,8 @@ body {
   margin-top: 18px;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 32px;
 }
 
 .sidebar h3 {
@@ -216,5 +218,6 @@ body {
   .sidebar {
     max-width: 98vw;
     margin: 0 auto 18px auto;
+    position: static;
   }
 }
