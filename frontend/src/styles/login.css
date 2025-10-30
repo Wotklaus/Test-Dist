@@ -1,125 +1,140 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Fredoka', Arial, sans-serif;
   margin: 0;
-  background: #eaf0fa;
-  min-height: 100vh;
-  /* para asegurar 100% altura */
-}
-
-.login-container {
+  background: linear-gradient(120deg, #3f75e1 0%, #e9ecf6 100%);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  justify-content: center;  /* centra verticalmente */
-  align-items: center;      /* centra horizontalmente */
-  padding: 0;
+  align-items: center;
+  justify-content: center;
 }
 
-.login-box {
+/* Main card container with flex layout */
+.auth-card {
+  display: flex;
+  flex-direction: row;
   background: #fff;
-  padding: 20px 18px 18px 18px;
-  border-radius: 14px;
-  box-shadow: 0 6px 24px rgba(55, 57, 58, 0.11);
-  min-width: 260px;
-  max-width: 320px;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(55, 57, 58, 0.09);
+  max-width: 690px;
   width: 100%;
+  min-height: 420px;
+  overflow: hidden;
+  border: 2px solid #e0e6ee;
+}
+
+/* Form area styles */
+.auth-form {
+  flex: 1 1 0;
+  padding: 38px 36px 38px 36px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
+  justify-content: center;
 }
 
 .login-title {
-  color: #252525;
-  font-size: 1.28rem;
+  color: #000000;
+  font-size: 2rem;
+  font-family: 'Press Start 2P', 'Fredoka', Arial, sans-serif;
   font-weight: 700;
+  text-align: center;
   margin-bottom: 4px;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
 }
 
-.login-links {
-  font-size: 0.91rem;
-  margin-bottom: 7px;
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-.login-links a {
-  color: #009191;
-  text-decoration: none;
-  font-weight: 600;
-}
+
 
 .input-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 7px;
+  margin-bottom: 15px;
 }
 .input-group label {
-  font-size: 0.98rem;
+  font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 1px;
-  color: #303030;
+  margin-bottom: 2px;
+  color: #61996a;
 }
 .input-group input {
-  padding: 7px 10px;
-  border: 1.2px solid #cbcece;
-  border-radius: 7px;
-  font-size: 0.97rem;
+  padding: 9px 11px;
+  border: 1.5px solid #e0e6ee;
+  border-radius: 8px;
+  font-size: 1rem;
   background: #f6f9fd;
-  transition: border 0.2s;
+  transition: border 0.2s, box-shadow 0.18s;
 }
 .input-group input:focus {
-  border: 1.2px solid #009191;
+  border: 1.5px solid #ababac;
   outline: none;
+  box-shadow: 0 0 8px #3385e644;
 }
 
-button[type="submit"],
-.register-btn {
+.poke-btn {
   width: 100%;
-  background: #252525;
-  color: #fff;
-  font-weight: 600;
+  background: linear-gradient(90deg, #90e61f 0%, #90e61f 100%);
+  color: #ffffff;
+  font-family: 'Fredoka', Arial, sans-serif;
+  font-weight: 700;
   border: none;
-  border-radius: 7px;
-  padding: 10px;
-  font-size: 1rem;
-  margin-top: 5px;
+  border-radius: 12px;
+  padding: 12px 0;
+  font-size: 1.09rem;
+  margin-top: 3px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(69,123,157,0.06);
-  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 2px 12px rgba(69,123,157,0.09);
+  transition: background 0.22s, transform 0.18s, box-shadow 0.18s;
 }
 
-button[type="submit"]:hover,
-.register-btn:hover {
-  background: #009191;
-  transform: translateY(-2px) scale(1.02);
+.poke-btn:hover {
+  background: linear-gradient(90deg, #739f26 0%, #739f26 100%);
+  color: #fff;
+  transform: translateY(-2px) scale(1.035);
+  box-shadow: 0 6px 18px rgba(60,72,88,0.13);
 }
 
 #login-message {
   color: #e63946;
   text-align: center;
   margin-top: 7px;
-  min-height: 18px;
-  font-weight: 500;
+  min-height: 20px;
+  font-weight: 600;
+  font-size: 1.01rem;
 }
 
-.login-help {
-  text-align: center;
-  margin-top: 6px;
-}
-.login-help a {
-  color: #009191;
-  text-decoration: none;
-  font-size: 0.91rem;
-  font-weight: 500;
+/* Image area styles */
+.auth-image {
+  flex: 1 1 0;
+  background: #f6f8fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  /* Remove horizontal padding for full fit */
 }
 
-/* Responsive: para pantallas pequeñas */
-@media (max-width: 430px) {
-  .login-box {
-    min-width: unset;
-    max-width: 99vw;
-    padding: 12px 2vw;
+.auth-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* Makes image fill container and crop if needed */
+  border-radius: 0;     /* Remove border radius if you want square corners */
+  display: block;
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 900px) {
+  .auth-card {
+    flex-direction: column;
+    max-width: 98vw;
+    min-height: 0;
+    border-radius: 14px;
+  }
+  .auth-form {
+    padding: 24px 14px 18px 14px;
+    min-width: 0;
+  }
+  .auth-image {
+    padding: 9px 0 18px 0;
+  }
+  .auth-image img {
+    max-width: 180px;
   }
 }

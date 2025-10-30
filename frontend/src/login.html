@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <title>PokeStake - Login</title>
   <link rel="stylesheet" href="styles/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="login-container">
-    <div class="login-box">
+  <div class="auth-card">
+    <div class="auth-form">
       <div class="login-title">PokeStake</div>
+      <br></br>
       <form id="login-form">
         <div class="input-group">
           <label for="username">User</label>
@@ -16,13 +18,17 @@
         </div>
         <div class="input-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" required>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
         </div>
-        <button type="submit">Sign in</button>
+        <button type="submit" class="poke-btn">Sign in</button>
         <div id="login-message"></div>
       </form>
-      <button class="register-btn" onclick="window.location.href='register.html'">Register</button>
-      
+      <button class="register-btn poke-btn" onclick="window.location.href='register.html'">Register</button>
+    </div>
+    <div class="auth-image">
+      <!-- Aquí pon la imagen de tu Pokémon favorito, por ejemplo: -->
+     
+      <img src="assets/login2.jpg" alt="Welcome Pokémon" />
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
