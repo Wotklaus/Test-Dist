@@ -9,9 +9,9 @@ body {
 .main-title {
   color: #232526;
   text-align: center;
-  font-size: 2.3rem;
+  font-size: 2.5rem;
   margin-top: 32px;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -21,27 +21,28 @@ body {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 24px;
-  gap: 40px;
+  padding: 0 32px;
+  gap: 56px;
+  padding-bottom: 120px; /* Prevent bottom bar from covering content */
 }
 
 .article-card-container {
-  width: 700px;
+  width: 1000px;
   max-width: 100%;
 }
 
 .article-card {
   background: #fff;
-  border-radius: 18px;
+  border-radius: 22px;
   box-shadow: 0 4px 24px rgba(60,72,88,0.09);
-  padding: 26px 26px 22px 26px;
+  padding: 40px 40px 36px 40px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   border: 1px solid #ececec;
-  gap: 32px;
+  gap: 48px;
   margin-bottom: 38px;
 }
 
@@ -54,12 +55,11 @@ body {
 }
 
 .article-img {
-  width: 240px;
+  width: 320px;
   height: auto;
-  border-radius: 14px;
+  border-radius: 18px;
   box-shadow: 0 2px 12px 2px rgba(60,72,88,0.08);
   object-fit: cover;
-  margin-bottom: 0;
 }
 
 .article-info {
@@ -70,24 +70,24 @@ body {
 }
 
 .article-title {
-  font-size: 1.45rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: #232526;
-  margin: 0 0 18px 0;
+  margin: 0 0 22px 0;
 }
 
 .article-content {
-  font-size: 1.08rem;
+  font-size: 1.13rem;
   color: #31343b;
-  margin-bottom: 14px;
-  line-height: 1.6;
+  margin-bottom: 16px;
+  line-height: 1.7;
   letter-spacing: 0.02em;
 }
 
 .article-meta {
   color: #566375;
-  font-size: 0.99rem;
-  margin-bottom: 12px;
+  font-size: 1.07rem;
+  margin-bottom: 16px;
 }
 
 .page-btn {
@@ -95,15 +95,15 @@ body {
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 12px 28px;
-  font-size: 1.09rem;
+  padding: 14px 34px;
+  font-size: 1.12rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(35,37,38,0.09);
   text-decoration: none;
   display: inline-block;
   letter-spacing: 0.07px;
   outline: none;
-  margin: 0 8px;
+  margin: 0 10px;
   transition: background 0.14s, transform 0.12s, box-shadow 0.14s;
 }
 
@@ -127,9 +127,9 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 32px;
   border-top: 1.5px solid #ececec;
-  padding: 18px 0 24px 0;
+  padding: 22px 0 32px 0;
 }
 
 .logout-area {
@@ -144,8 +144,8 @@ body {
   font-weight: 600;
   border: 1.5px solid #c7c8cc;
   border-radius: 9px;
-  padding: 12px 32px;
-  font-size: 1.05rem;
+  padding: 14px 36px;
+  font-size: 1.09rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(120,120,130,0.08);
   transition: background 0.12s, color 0.13s, border 0.13s, transform 0.13s;
@@ -160,25 +160,25 @@ body {
 }
 
 .sidebar {
-  min-width: 220px;
-  max-width: 280px;
+  min-width: 260px;
+  max-width: 340px;
   background: #fff;
-  border-radius: 14px;
+  border-radius: 18px;
   box-shadow: 0 2px 14px 2px rgba(60,72,88,0.09);
-  padding: 24px 20px;
+  padding: 28px 26px;
   border: 1px solid #ececec;
   height: fit-content;
   margin-top: 18px;
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: 32px;
+  top: 38px;
 }
 
 .sidebar h3 {
   margin-top: 0;
   color: #232526;
-  font-size: 1.13rem;
+  font-size: 1.18rem;
   font-weight: 600;
   margin-bottom: 12px;
 }
@@ -190,13 +190,13 @@ body {
 }
 
 .sidebar li {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .sidebar a {
   color: #566375;
   text-decoration: none;
-  font-size: 1.01rem;
+  font-size: 1.05rem;
   transition: color 0.12s;
 }
 
@@ -205,15 +205,43 @@ body {
   text-decoration: underline;
 }
 
+@media (max-width: 1200px) {
+  .main-content {
+    max-width: 98vw;
+    gap: 30px;
+    padding: 0 10px;
+    padding-bottom: 100px;
+  }
+  .article-card-container {
+    width: 100%;
+  }
+  .article-card {
+    gap: 24px;
+    padding: 24px 12px 12px 12px;
+  }
+  .article-img {
+    width: 220px;
+  }
+  .sidebar {
+    max-width: 98vw;
+  }
+}
+
 @media (max-width: 900px) {
   .main-content {
     flex-direction: column;
     gap: 22px;
+    padding: 0 2vw;
+    padding-bottom: 80px;
   }
   .article-card {
     flex-direction: column;
     width: 100%;
     gap: 12px;
+  }
+  .article-img {
+    width: 100%;
+    max-width: 320px;
   }
   .sidebar {
     max-width: 98vw;
