@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
     paginationBar.innerHTML = paginationHTML;
     document.querySelectorAll('.page-btn').forEach(btn => {
-      btn.onclick = function() {
+      btn.onclick = function () {
         currentPage = parseInt(this.getAttribute('data-page'));
         renderPokemons(pokemons);
       };
@@ -177,7 +177,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       const filter = searchInput.value.toLowerCase();
       const filtered = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
+
       renderPokemons(filtered);
+    });
+  }
+
+  const articlesBtn = document.getElementById("articles-btn");
+  if (articlesBtn) {
+    articlesBtn.addEventListener("click", function () {
+      window.location.href = "articles.html";
     });
   }
 
@@ -190,60 +198,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // === CONTENTFUL ARTICLES BUTTON ===
-  const articlesBtn = document.getElementById("articles-btn");
 
-  const spaceId = 'v6xedn2etntd';
-  const accessToken = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1XY6gTk';
-
-  async function fetchArticlesWithAssets() {
-    try {
-      const res = await fetch(`https://cdn.contentful.com/spaces/v6xedn2etntd/entries?access_token=TU_TOKEN&content_type=ArticuloPokemon`);
-      // DEBUG: para ver qué trae la respuesta
-      console.log('Contentful response:', data);
-      const assets = (data.includes && data.includes.Asset)
-        ? Object.fromEntries(data.includes.Asset.map(a => [a.sys.id, a]))
-        : {};
-      const items = data.items || [];
-      if (!Array.isArray(items)) {
-        console.error("No items array returned from Contentful:", data);
-        return [];
-      }
-      return items.map(article => {
-        let imageUrl = "";
-        if (article.fields.imagenPrincipal && article.fields.imagenPrincipal.sys) {
-          const asset = assets[article.fields.imagenPrincipal.sys.id];
-          if (asset && asset.fields && asset.fields.file && asset.fields.file.url) {
-            imageUrl = "https:" + asset.fields.file.url;
-          }
-        }
-        return {
-          title: article.fields.title,
-          author: article.fields.author || "",
-          date: article.fields.fechaPublicacion || "",
-          content: article.fields.content || "",
-          slug: article.fields.slug || "",
-          image: imageUrl
-        };
-      });
-    } catch (err) {
-      console.error("Fetch Contentful error:", err);
-      return [];
-    }
-  }
-
-  // Cuando presionas el botón, muestra los artículos en un alert (puedes mejorar esto)
-  if (articlesBtn) {
-    articlesBtn.addEventListener("click", async function () {
-      const articles = await fetchArticlesWithAssets();
-      if (!articles || articles.length === 0) {
-        alert("No articles found");
-        return;
-      }
-      // Muestra los títulos de los artículos en un alert
-      const titles = articles.map(a => a.title).join('\n');
-      alert("Artículos de Contentful:\n\n" + titles);
-    });
-  }
 
 });
