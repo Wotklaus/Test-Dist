@@ -6,7 +6,7 @@ body {
   color: #232526;
 }
 
-h1 {
+.main-title {
   color: #232526;
   text-align: center;
   font-size: 2.3rem;
@@ -16,43 +16,58 @@ h1 {
   letter-spacing: 0.5px;
 }
 
-.article-card-container {
-  max-width: 800px;
-  margin: 38px auto 38px auto;
+.main-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 0 24px;
+  gap: 40px;
+}
+
+.article-card-container {
+  width: 700px;
+  max-width: 100%;
 }
 
 .article-card {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(60,72,88,0.09);
-  padding: 30px 32px 28px 32px;
-  width: 100%;
+  padding: 26px 26px 22px 26px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
   border: 1px solid #ececec;
-  margin-bottom: 36px;
+  gap: 32px;
 }
 
-.article-card h2 {
-  font-size: 1.55rem;
+.article-img {
+  width: 240px;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px 2px rgba(60,72,88,0.08);
+  object-fit: cover;
+  margin-right: 0;
+}
+
+.article-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.article-title {
+  font-size: 1.45rem;
   font-weight: 700;
   color: #232526;
   margin: 0 0 18px 0;
 }
 
-.article-card img {
-  width: 240px;
-  max-width: 98vw;
-  height: auto;
-  border-radius: 13px;
-  margin-bottom: 18px;
-  box-shadow: 0 2px 12px 2px rgba(60,72,88,0.08);
-  object-fit: cover;
-}
-
-.article-card p {
+.article-content {
   font-size: 1.08rem;
   color: #31343b;
   margin-bottom: 14px;
@@ -60,36 +75,137 @@ h1 {
   letter-spacing: 0.02em;
 }
 
-.article-card small {
-  display: block;
+.article-meta {
   color: #566375;
   font-size: 0.99rem;
-  margin-bottom: 7px;
+  margin-bottom: 12px;
 }
 
-.back-link {
+.page-btn {
+  background: #232526;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.09rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(35,37,38,0.09);
+  text-decoration: none;
   display: inline-block;
-  margin: 22px 0 0 22px;
-  font-size: 1.07rem;
+  letter-spacing: 0.07px;
+  outline: none;
+  margin: 0 8px;
+  transition: background 0.14s, transform 0.12s, box-shadow 0.14s;
+}
+
+.page-btn:hover,
+.page-btn:focus {
+  background: #566375;
+  color: #fff;
+  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 6px 16px rgba(60,72,88,0.13);
+}
+
+.bottom-bar {
+  width: 100vw;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  background: #f8f9fa;
+  box-shadow: 0 -2px 24px rgba(60,72,88,0.07);
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  border-top: 1.5px solid #ececec;
+  padding: 18px 0 24px 0;
+}
+
+.logout-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn {
+  background: #fff;
+  color: #232526;
+  font-weight: 600;
+  border: 1.5px solid #c7c8cc;
+  border-radius: 9px;
+  padding: 12px 32px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(120,120,130,0.08);
+  transition: background 0.12s, color 0.13s, border 0.13s, transform 0.13s;
+  margin-left: 0;
+}
+
+.logout-btn:hover {
+  background: #f3f5f7;
+  color: #232526;
+  border: 1.7px solid #232526;
+  transform: translateY(-2px) scale(1.025);
+}
+
+.sidebar {
+  min-width: 220px;
+  max-width: 280px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 14px 2px rgba(60,72,88,0.09);
+  padding: 24px 20px;
+  border: 1px solid #ececec;
+  height: fit-content;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  margin-top: 0;
+  color: #232526;
+  font-size: 1.13rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 8px;
+}
+
+.sidebar a {
   color: #566375;
   text-decoration: none;
-  transition: color 0.13s, text-decoration 0.13s;
+  font-size: 1.01rem;
+  transition: color 0.12s;
 }
 
-.back-link:hover {
+.sidebar a:hover {
   color: #232526;
   text-decoration: underline;
 }
 
-@media (max-width: 700px) {
-  .article-card-container {
-    padding: 0 2vw;
+@media (max-width: 900px) {
+  .main-content {
+    flex-direction: column;
+    gap: 22px;
   }
   .article-card {
-    padding: 12px 4vw 16px 4vw;
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
   }
-  .article-card img {
-    width: 94vw;
-    margin-bottom: 12px;
+  .sidebar {
+    max-width: 98vw;
+    margin: 0 auto 18px auto;
   }
 }

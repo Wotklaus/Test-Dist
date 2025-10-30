@@ -6,12 +6,20 @@
   <link rel="stylesheet" href="articles.css">
 </head>
 <body>
-  <h1>Pokémon Articles</h1>
-  <div id="articles-list"></div>
-  <div>
-    <a href="index.html">← Back to Home</a>
+  <h1 class="main-title">Pokémon Articles</h1>
+  <div class="main-content">
+    <div id="articles-list" class="article-card-container"></div>
+    <aside class="sidebar">
+      <h3>Otros artículos</h3>
+      <ul id="other-articles"></ul>
+    </aside>
   </div>
-  <!-- Scripts: primero supabase, luego contentful, luego articles.js -->
+  <div class="bottom-bar">
+    <button id="back-btn" class="page-btn">← Back to Home</button>
+    <div class="logout-area">
+      <button id="logout-btn" class="logout-btn">Log out</button>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="js/supabaseConfig.js"></script>
   <script src="js/contenfulConfig.js"></script>

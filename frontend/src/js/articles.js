@@ -14,12 +14,38 @@ document.addEventListener("DOMContentLoaded", async function () {
     const card = document.createElement('div');
     card.className = "article-card";
     card.innerHTML = `
-      <h2>${article.title}</h2>
-      ${article.image ? `<img src="${article.image}" alt="Article image" style="max-width:300px;"/>` : ""}
-      <p>${article.content}</p>
-      <small>Author: ${article.author} | Date: ${article.date}</small>
-      <small>Pokémon relacionados: ${article.relatedPokemon}</small>
+      <div class="article-img-area">
+        ${article.image ? `<img src="${article.image}" alt="Article image" class="article-img"/>` : ""}
+      </div>
+      <div class="article-info">
+        <h2 class="article-title">${article.title}</h2>
+        <p class="article-content">${article.content}</p>
+        <div class="article-meta">
+          Autor: ${article.author} | Fecha: ${article.date}<br>
+          Pokémon relacionados: ${article.relatedPokemon}
+        </div>
+      </div>
     `;
     container.appendChild(card);
   });
+
+  // Sidebar de otros artículos (puedes filtrar para no repetir el actual)
+  const sidebarUl = document.getElementById('other-articles');
+  sidebarUl.innerHTML = "";
+  articles.forEach(article => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="articles.html?slug=${article.slug}">${article.title}</a>`;
+    sidebarUl.appendChild(li);
+  });
+
+  // Botón de regreso
+  document.getElementById("back-btn").onclick = function() {
+    window.location.href = "index.html";
+  };
+
+  // Botón de logout
+  document.getElementById("logout-btn").onclick = function() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  };
 });
