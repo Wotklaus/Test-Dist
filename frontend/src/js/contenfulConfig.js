@@ -1,10 +1,10 @@
 const CONTENTFUL_SPACE_ID = 'v6xedn2etntd';
-const CONTENTFUL_ACCESS_TOKEN = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1Xy6gTk';
+const CONTENTFUL_ACCESS_TOKEN = '4_5GCKbBbI-sTuWTQsYf1KYMAEvJhqxZpPaV1XY6gTk';
 
 async function fetchArticlesWithAssets() {
   try {
     const res = await fetch(
-      `https://cdn.contentful.com/spaces/${CONTENTFUL_SPACE_ID}/entries?access_token=${CONTENTFUL_ACCESS_TOKEN}&content_type=ArticuloPokemon&include=2`
+      `https://cdn.contentful.com/spaces/${CONTENTFUL_SPACE_ID}/entries?access_token=${CONTENTFUL_ACCESS_TOKEN}&content_type=articuloPokemon&include=2`
     );
     const data = await res.json();
 
@@ -25,13 +25,21 @@ async function fetchArticlesWithAssets() {
           imageUrl = "https:" + asset.fields.file.url;
         }
       }
+      // El contenido está en formato Rich Text, así que lo puedes extraer como string simple:
+      let content = "";
+      if (article.fields.contenido && article.fields.contenido.content) {
+        content = article.fields.contenido.content.map(block =>
+          block.content.map(textNode => textNode.value).join("\n")
+        ).join("\n");
+      }
       return {
         title: article.fields.title,
-        author: article.fields.author || "",
+        author: article.fields.autor || "",
         date: article.fields.fechaPublicacion || "",
-        content: article.fields.content || "",
+        content: content,
         slug: article.fields.slug || "",
-        image: imageUrl
+        image: imageUrl,
+        relatedPokemon: article.fields.pokemonRelacionado || ""
       };
     });
   } catch (err) {
