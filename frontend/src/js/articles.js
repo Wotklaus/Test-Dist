@@ -2,6 +2,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById('articles-list');
   container.textContent = "Loading articles...";
 
+  // Función para mostrar la fecha como "27 de febrero de 1996"
+  function formatFecha(fechaIso) {
+    if (!fechaIso) return "";
+    const fecha = new Date(fechaIso);
+    return fecha.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
   // Trae los artículos desde Contentful
   const articles = await fetchArticlesWithAssets();
   if (!articles || articles.length === 0) {
@@ -23,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p class="article-content">${article.content || ""}</p>
         <div class="article-meta">
           ${article.author ? `${article.author}` : ""}
-          ${article.date ? `<br>${article.date}` : ""}
+          ${article.date ? `<br>${formatFecha(article.date)}` : ""}
           ${article.relatedPokemon ? `<br>${article.relatedPokemon}` : ""}
         </div>
       </div>
