@@ -1,48 +1,62 @@
+// Helper to get the slug from the URL
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+// Formateador de fecha
+function formatFecha(fechaIso) {
+  if (!fechaIso) return "";
+  const fecha = new Date(fechaIso);
+  return fecha.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById('articles-list');
-  container.textContent = "Loading articles...";
+  container.textContent = "Loading article...";
 
-  // Función para mostrar la fecha como "27 de febrero de 1996"
-  function formatFecha(fechaIso) {
-    if (!fechaIso) return "";
-    const fecha = new Date(fechaIso);
-    return fecha.toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  }
+  // Trae los artículos desde Contentful (ya configurado en tu proyecto)
+  const articles = await fetchArticlesWithAssets(); // <-- Esta función debe traerte los 3 artículos publicados
 
-  // Trae los artículos desde Contentful
-  const articles = await fetchArticlesWithAssets();
   if (!articles || articles.length === 0) {
     container.textContent = "No articles found";
     return;
   }
 
-  container.innerHTML = "";
-  articles.forEach(article => {
-    // Estructura: imagen a la izquierda, info a la derecha
-    const card = document.createElement('div');
-    card.className = "article-card";
-    card.innerHTML = `
-      <div class="article-img-area">
-        ${article.image ? `<img src="${article.image}" alt="Article image" class="article-img"/>` : ""}
-      </div>
-      <div class="article-info">
-        <h2 class="article-title">${article.title || ""}</h2>
-        <p class="article-content">${article.content || ""}</p>
-        <div class="article-meta">
-          ${article.author ? `${article.author}` : ""}
-          ${article.date ? `<br>${formatFecha(article.date)}` : ""}
-          ${article.relatedPokemon ? `<br>${article.relatedPokemon}` : ""}
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
+  // Obtén el slug de la URL
+  const slug = getQueryParam("slug");
+  // Busca el artículo por el slug, o por defecto el primero (Satoshi Tajiri)
+  let selectedArticle = articles[0];
+  if (slug) {
+    const found = articles.find(a => a.slug === slug);
+    if (found) selectedArticle = found;
+  }
 
-  // Sidebar de otros artículos
+  // Muestra solo el artículo seleccionado
+  container.innerHTML = "";
+  const card = document.createElement('div');
+  card.className = "article-card";
+  card.innerHTML = `
+    <div class="article-img-area">
+      ${selectedArticle.image ? `<img src="${selectedArticle.image}" alt="Article image" class="article-img"/>` : ""}
+    </div>
+    <div class="article-info">
+      <h2 class="article-title">${selectedArticle.title || ""}</h2>
+      <p class="article-content">${selectedArticle.content || ""}</p>
+      <div class="article-meta">
+        ${selectedArticle.author ? `${selectedArticle.author}` : ""}
+        ${selectedArticle.date ? `<br>${formatFecha(selectedArticle.date)}` : ""}
+        ${selectedArticle.relatedPokemon ? `<br>${selectedArticle.relatedPokemon}` : ""}
+      </div>
+    </div>
+  `;
+  container.appendChild(card);
+
+  // Panel lateral con links a los 3 artículos
   const sidebarUl = document.getElementById('other-articles');
   sidebarUl.innerHTML = "";
   articles.forEach(article => {
