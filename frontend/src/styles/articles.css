@@ -23,9 +23,10 @@ body {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Centra verticalmente el contenido principal */
+  justify-content: center;
   align-items: stretch;
   min-height: 0;
+  padding-bottom: 70px; /* Alto de la barra inferior fija */
 }
 
 .main-content {
@@ -114,6 +115,20 @@ body {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(35,37,38,0.09);
   margin: 0 6px;
+  transition: background 0.14s, transform 0.12s, box-shadow 0.14s;
+}
+
+.page-btn:hover,
+.page-btn:focus {
+  background: #566375;
+  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 6px 16px rgba(60,72,88,0.13);
+}
+
+.logout-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .logout-btn {
@@ -126,11 +141,19 @@ body {
   font-size: 1rem;
   cursor: pointer;
   margin-left: 0;
+  box-shadow: 0 2px 8px rgba(120,120,130,0.08);
+  transition: background 0.12s, color 0.13s, border 0.13s, transform 0.13s;
+}
+
+.logout-btn:hover {
+  background: #f3f5f7;
+  border: 1.7px solid #232526;
+  transform: translateY(-2px) scale(1.025);
 }
 
 .bottom-bar {
   width: 100vw;
-  position: relative;
+  position: fixed;
   left: 0;
   bottom: 0;
   background: #f8f9fa;
@@ -142,7 +165,7 @@ body {
   justify-content: center;
   gap: 20px;
   border-top: 1.5px solid #ececec;
-  padding: 12px 0 14px 0; /* más compacto */
+  padding: 12px 0 14px 0;
   flex-shrink: 0;
 }
 
