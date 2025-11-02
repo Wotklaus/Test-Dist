@@ -23,12 +23,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   let favorites = [];
   let currentPage = 1;
   const PAGE_SIZE = 8;
+  let filteredList = [];
+
+  // --- NUEVA PAGINACIÓN CON FLECHAS ---
+  // Botones de flecha
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
 
   function renderPokemons(list) {
     container.innerHTML = "";
     if (list.length === 0) {
       container.innerHTML = "<p>No Pokémon found</p>";
-      renderPagination(0);
+      updateArrows(0);
       return;
     }
     const start = (currentPage - 1) * PAGE_SIZE;
@@ -70,29 +76,32 @@ document.addEventListener("DOMContentLoaded", async function () {
       container.appendChild(card);
     });
 
-    renderPagination(list.length);
+    updateArrows(list.length);
   }
 
-  function renderPagination(total) {
+  function updateArrows(total) {
     const pageCount = Math.ceil(total / PAGE_SIZE);
-    const paginationBar = document.getElementById("pagination-bar");
-    if (!paginationBar) return;
+    if (prevBtn) prevBtn.disabled = (currentPage === 1 || pageCount === 0);
+    if (nextBtn) nextBtn.disabled = (currentPage === pageCount || pageCount === 0);
+  }
 
-    if (pageCount <= 1) {
-      paginationBar.innerHTML = "";
-      return;
-    }
-
-    let paginationHTML = '';
-    for (let i = 1; i <= pageCount; i++) {
-      paginationHTML += `<button class="page-btn${i === currentPage ? " active" : ""}" data-page="${i}">${i}</button>`;
-    }
-    paginationBar.innerHTML = paginationHTML;
-    document.querySelectorAll('.page-btn').forEach(btn => {
-      btn.onclick = function () {
-        currentPage = parseInt(this.getAttribute('data-page'));
-        renderPokemons(pokemons);
-      };
+  // Listeners de flechas
+  if (prevBtn) {
+    prevBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPokemons(filteredList.length ? filteredList : pokemons);
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", function () {
+      const totalList = filteredList.length ? filteredList : pokemons;
+      const maxPage = Math.ceil(totalList.length / PAGE_SIZE);
+      if (currentPage < maxPage) {
+        currentPage++;
+        renderPokemons(totalList);
+      }
     });
   }
 
@@ -163,6 +172,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       Promise.all(promises).then(async results => {
         pokemons = results;
         favorites = await loadFavorites();
+        filteredList = [];
         renderPokemons(pokemons);
       });
     })
@@ -175,10 +185,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       const filter = searchInput.value.toLowerCase();
-      const filtered = pokemons.filter(p => p.name.includes(filter));
+      filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
 
-      renderPokemons(filtered);
+      renderPokemons(filteredList.length ? filteredList : pokemons);
     });
   }
 
@@ -197,7 +207,4 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.href = "login.html";
     });
   }
-
-
-
 });
