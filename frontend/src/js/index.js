@@ -1,7 +1,15 @@
 console.log("Index JS working :)");
 
-document.addEventListener("DOMContentLoaded", function () {
-  // FAVORITES BUTTON
+document.addEventListener("DOMContentLoaded", async function () {
+  // VALIDACIÓN DE SESIÓN CON SUPABASE (redirección si no hay login)
+  const { data, error } = await supabase.auth.getSession();
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+  const userId = data.session.user.id;
+
+  // --- FAVORITES BUTTON ---
   const favoritesBtn = document.getElementById("favorites-btn");
   if (favoritesBtn) {
     favoritesBtn.addEventListener("click", function () {
@@ -10,20 +18,23 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const container = document.getElementById("pokemon-list");
-  const searchInput = document.getElementById("search"); // ID debe coincidir con el HTML
+  const searchInput = document.getElementById("search");
   let pokemons = [];
   let favorites = [];
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
-
   let currentPage = 1;
   const PAGE_SIZE = 8;
+  let filteredList = [];
+
+  // --- NUEVA PAGINACIÓN CON FLECHAS ---
+  // Botones de flecha
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
 
   function renderPokemons(list) {
     container.innerHTML = "";
     if (list.length === 0) {
       container.innerHTML = "<p>No Pokémon found</p>";
-      renderPagination(0);
+      updateArrows(0);
       return;
     }
     const start = (currentPage - 1) * PAGE_SIZE;
@@ -43,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
         favBtn.classList.add("favorited");
       }
       favBtn.onclick = function () {
-        toggleFavorite(pokemon.name, favBtn);
+        toggleFavorite(pokemon, favBtn);
       };
       card.appendChild(favBtn);
 
@@ -65,58 +76,82 @@ document.addEventListener("DOMContentLoaded", function () {
       container.appendChild(card);
     });
 
-    renderPagination(list.length);
+    updateArrows(list.length);
   }
 
-  function renderPagination(total) {
+  function updateArrows(total) {
     const pageCount = Math.ceil(total / PAGE_SIZE);
-    const paginationBar = document.getElementById("pagination-bar");
-    if (!paginationBar) return;
+    if (prevBtn) prevBtn.disabled = (currentPage === 1 || pageCount === 0);
+    if (nextBtn) nextBtn.disabled = (currentPage === pageCount || pageCount === 0);
+  }
 
-    if (pageCount <= 1) {
-      paginationBar.innerHTML = "";
-      return;
-    }
-
-    let paginationHTML = '';
-    for (let i = 1; i <= pageCount; i++) {
-      paginationHTML += `<button class="page-btn${i === currentPage ? " active" : ""}" data-page="${i}">${i}</button>`;
-    }
-    paginationBar.innerHTML = paginationHTML;
-    document.querySelectorAll('.page-btn').forEach(btn => {
-      btn.onclick = function() {
-        currentPage = parseInt(this.getAttribute('data-page'));
-        renderPokemons(pokemons);
-      };
+  // Listeners de flechas
+  if (prevBtn) {
+    prevBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPokemons(filteredList.length ? filteredList : pokemons);
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", function () {
+      const totalList = filteredList.length ? filteredList : pokemons;
+      const maxPage = Math.ceil(totalList.length / PAGE_SIZE);
+      if (currentPage < maxPage) {
+        currentPage++;
+        renderPokemons(totalList);
+      }
     });
   }
 
-  // Modificado para enviar id y name
-  function toggleFavorite(pokemonName, btn) {
+  // Usar Supabase para favoritos
+  async function toggleFavorite(pokemon, btn) {
     const isFavorited = btn.classList.contains('favorited');
-    const method = isFavorited ? 'DELETE' : 'POST';
 
-    // Busca el objeto Pokémon por nombre en el arreglo
-    const pokemon = pokemons.find(p => p.name === pokemonName);
+    if (!userId) {
+      alert("Please log in.");
+      return;
+    }
 
-    fetch('/api/favorites', {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        pokemon_id: pokemon.id,        // Enviando el id
-        pokemon_name: pokemon.name     // Enviando el nombre
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Actualiza favoritos como lista de nombres
-        favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-        btn.classList.toggle('favorited');
-        btn.innerHTML = btn.classList.contains('favorited') ? "❤️" : "🤍";
-      });
+    if (isFavorited) {
+      // QUITAR favorito
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('pokemon_id', pokemon.id);
+
+      if (!error) {
+        favorites = favorites.filter(name => name !== pokemon.name);
+        btn.classList.remove('favorited');
+        btn.innerHTML = "🤍";
+      }
+    } else {
+      // AGREGAR favorito
+      const { error } = await supabase
+        .from('favorites')
+        .insert([
+          { user_id: userId, pokemon_id: pokemon.id, pokemon_name: pokemon.name }
+        ]);
+
+      if (!error) {
+        favorites.push(pokemon.name);
+        btn.classList.add('favorited');
+        btn.innerHTML = "❤️";
+      }
+    }
+  }
+
+  // Cargar la lista de favoritos del usuario desde Supabase
+  async function loadFavorites() {
+    const { data, error } = await supabase
+      .from('favorites')
+      .select('pokemon_name')
+      .eq('user_id', userId);
+
+    if (error) return [];
+    return (data || []).map(fav => fav.pokemon_name);
   }
 
   // Load Pokémon (incluyendo id)
@@ -134,20 +169,11 @@ document.addEventListener("DOMContentLoaded", function () {
             id: info.id // <--- Aquí agregamos el id
           }))
       );
-      Promise.all(promises).then(results => {
+      Promise.all(promises).then(async results => {
         pokemons = results;
-        fetch('/api/favorites', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        })
-          .then(res => res.json())
-          .then(data => {
-            favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-            renderPokemons(pokemons);
-          })
-          .catch(() => {
-            favorites = [];
-            renderPokemons(pokemons);
-          });
+        favorites = await loadFavorites();
+        filteredList = [];
+        renderPokemons(pokemons);
       });
     })
     .catch(error => {
@@ -159,19 +185,25 @@ document.addEventListener("DOMContentLoaded", function () {
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       const filter = searchInput.value.toLowerCase();
-      const filtered = pokemons.filter(p => p.name.includes(filter));
+      filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
-      renderPokemons(filtered);
+
+      renderPokemons(filteredList.length ? filteredList : pokemons);
+    });
+  }
+
+  const articlesBtn = document.getElementById("articles-btn");
+  if (articlesBtn) {
+    articlesBtn.addEventListener("click", function () {
+      window.location.href = "articles.html";
     });
   }
 
   // ---- LOGOUT ----
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userEmail");
+    logoutBtn.addEventListener("click", async function () {
+      await supabase.auth.signOut();
       window.location.href = "login.html";
     });
   }

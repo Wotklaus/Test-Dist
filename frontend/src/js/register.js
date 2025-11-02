@@ -1,3 +1,4 @@
+// Register script for PokeStake
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registerForm');
   const msg = document.getElementById('registerMsg');
@@ -5,49 +6,56 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Get all form data except confirm_password
     const data = Object.fromEntries(new FormData(form).entries());
+    // We do NOT check confirm_password anymore
 
-    // Validar contraseñas
-    if (data.password !== data.confirm_password) {
-      msg.textContent = "Passwords do not match";
-      msg.style.color = "red";
-      return;
-    }
-
-    // Crear objeto sin confirm_password
-    const { confirm_password, ...userData } = data;
-
-    // LOG: Ver datos enviados
-    console.log("Enviando datos de registro:", userData);
+    console.log("Sending registration data:", data);
 
     try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+      // 1. Register user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
       });
 
-      // LOG: Respuesta cruda
-      console.log("Respuesta HTTP:", response);
-
-      const resData = await response.json();
-
-      // LOG: Contenido de la respuesta
-      console.log("Respuesta del servidor:", resData);
-
-      if (response.ok) {
-        msg.textContent = "Registration successful!";
-        msg.style.color = "green";
-        form.reset();
-      } else {
-        msg.textContent = resData.error || "Registration failed";
+      if (authError) {
+        msg.textContent = authError.message || "Registration failed";
         msg.style.color = "red";
+        return;
       }
+
+      // 2. Insert additional user data into "users" table
+      const userId = authData?.user?.id; // Supabase user UUID
+
+      const { error: dbError } = await supabase
+        .from('users')
+        .insert([
+          {
+            id: userId,
+            email: data.email,
+            password: data.password,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            document_id: data.document_id,
+            phone: data.phone,
+          }
+        ]);
+
+      if (dbError) {
+        msg.textContent = dbError.message || "Registration error in database";
+        msg.style.color = "red";
+        return;
+      }
+
+      msg.textContent = "Registration successful!";
+      msg.style.color = "green";
+      form.reset();
+
     } catch (err) {
-      msg.textContent = "Server error: " + err.message;
+      msg.textContent = "Error: " + err.message;
       msg.style.color = "red";
-      // LOG: Error de red o fetch
-      console.error("Error en el registro:", err);
+      console.error("Registration error:", err);
     }
   });
 });
