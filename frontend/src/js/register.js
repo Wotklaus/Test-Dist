@@ -1,3 +1,4 @@
+// Register script for PokeStake
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registerForm');
   const msg = document.getElementById('registerMsg');
@@ -5,23 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Get all form data except confirm_password
     const data = Object.fromEntries(new FormData(form).entries());
+    // We do NOT check confirm_password anymore
 
-    if (data.password !== data.confirm_password) {
-      msg.textContent = "Passwords do not match";
-      msg.style.color = "red";
-      return;
-    }
-
-    const { confirm_password, ...userData } = data;
-
-    console.log("Sending registration data:", userData);
+    console.log("Sending registration data:", data);
 
     try {
       // 1. Register user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: userData.email,
-        password: userData.password,
+        email: data.email,
+        password: data.password,
       });
 
       if (authError) {
@@ -31,20 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // 2. Insert additional user data into "users" table
-      // ¡AGREGA EL CAMPO id!
-      const userId = authData?.user?.id; // <- Aquí obtienes el UUID
+      const userId = authData?.user?.id; // Supabase user UUID
 
       const { error: dbError } = await supabase
         .from('users')
         .insert([
           {
-            id: userId, // <- Aquí va el UUID
-            email: userData.email,
-            password: userData.password,
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            document_id: userData.document_id,
-            phone: userData.phone,
+            id: userId,
+            email: data.email,
+            password: data.password,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            document_id: data.document_id,
+            phone: data.phone,
           }
         ]);
 
@@ -57,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       msg.textContent = "Registration successful!";
       msg.style.color = "green";
       form.reset();
+
     } catch (err) {
       msg.textContent = "Error: " + err.message;
       msg.style.color = "red";
