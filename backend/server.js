@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const pool = require('./src/config/postgres'); // Ajusta la ruta si es necesario
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 // Sirve archivos estáticos del frontend

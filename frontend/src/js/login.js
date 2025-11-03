@@ -1,12 +1,10 @@
-// login.js -- Handles the login process for PokeStake
-
-console.log("Login JS working :)");
+import { loginUser } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("login-form");
   if (!form) return;
 
-  // Clear login message on user input
+  // Limpia el mensaje de error cuando el usuario escribe en los campos
   ["username", "password"].forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -22,21 +20,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const email = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    // Login using Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const result = await loginUser(email, password);
 
-    if (error) {
-      document.getElementById("login-message").textContent = error.message || "Login failed";
+    if (result.error) {
+      document.getElementById("login-message").textContent = result.error || "Login failed";
       document.getElementById("login-message").style.color = "red";
       return;
     }
 
-    // Save session data in localStorage
-    localStorage.setItem("token", data.session.access_token);
-    localStorage.setItem("userId", data.user.id);
-    localStorage.setItem("userEmail", data.user.email);
+    // Guarda el token y los datos en localStorage
+    localStorage.setItem("token", result.token); 
+    localStorage.setItem("userId", result.user.id);
+    localStorage.setItem("userEmail", result.user.email);
 
-    // Redirect to home page (index.html) after successful login
+    // Redirige al index
     window.location.href = "index.html";
   });
 });

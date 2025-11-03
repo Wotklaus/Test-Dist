@@ -8,17 +8,8 @@
   <link rel="stylesheet" href="styles/index.css">
 </head>
 <body>
-  <!-- TOP HEADER -->
-  <div class="header-bar">
-    <div class="header-title">PokeStake</div>
-    <div class="header-actions">
-      <button id="favorites-btn" title="Favorites">Favorites</button>
-      <button id="articles-btn" title="Articles">Articles</button>
-      <button id="logout-btn" class="logout-btn" title="Log out">
-        <span class="material-icons">logout</span>
-      </button>
-    </div>
-  </div>
+  <!-- Aquí se insertará la barra superior -->
+  <div id="main-header"></div>
 
   <!-- SEARCH BAR -->
   <div class="search-bar-area">
@@ -33,9 +24,7 @@
     <button class="pagination-arrow-btn" id="prev-page" title="Previous" aria-label="Previous">
       <span class="material-icons">chevron_left</span>
     </button>
-    
     <div id="pokemon-list" class="card-container"></div>
-    
     <button class="pagination-arrow-btn" id="next-page" title="Next" aria-label="Next">
       <span class="material-icons">chevron_right</span>
     </button>
@@ -44,6 +33,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="js/supabaseConfig.js"></script>
   <script src="js/contenfulConfig.js"></script>
-  <script src="js/index.js"></script>
+  <script type="module" src="js/index.js"></script>
+  <!-- Importa el loader de la barra superior -->
+  <script src="js/loadHeader.js"></script>
 </body>
 </html>
