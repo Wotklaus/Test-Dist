@@ -149,13 +149,13 @@ RETURNS TABLE(
   id INTEGER,
   user_id INTEGER,
   pokemon_name VARCHAR,
-  "timestamp" TIMESTAMP  -- Corregido: comillas dobles aquí
+  "timestamp" TIMESTAMP
 ) AS $$
 BEGIN
   RETURN QUERY
-    SELECT id, user_id, pokemon_name, timestamp
-    FROM search_history
-    WHERE user_id = p_user_id
-    ORDER BY timestamp DESC;
+    SELECT sh.id, sh.user_id, sh.pokemon_name, sh."timestamp"
+    FROM search_history sh
+    WHERE sh.user_id = p_user_id
+    ORDER BY sh."timestamp" DESC;
 END;
 $$ LANGUAGE plpgsql;

@@ -1,7 +1,7 @@
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  margin: 0;
   background: #f8f9fa;
+  margin: 0;
   color: #232526;
   min-height: 100vh;
 }
@@ -14,7 +14,7 @@ body {
 }
 
 .stat-title {
-  color: #23835c;
+  color: #7aa895;
   text-align: center;
   font-size: 2.2rem;
   font-weight: 800;
@@ -33,51 +33,100 @@ body {
   padding: 0 18px;
 }
 
-.stat-table-area {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(60,72,88,0.10);
-  padding: 36px 28px;
-}
-
-.stat-section-title {
-  font-size: 1.28rem;
-  font-weight: 700;
-  color: #23835c;
-  margin: 0 0 20px 0;
-}
-
-.stat-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.stat-table th, .stat-table td {
-  font-size: 1rem;
-  padding: 10px 14px;
-  border-bottom: 1px solid #ececec;
-  text-align: left;
-}
-
-.stat-table th {
-  background: #eaf7f1;
-  font-weight: 700;
-  color: #23835c;
-}
-
-.stat-table tr:last-child td {
-  border-bottom: none;
-}
-
+.stat-table-area,
 .stat-chart-area {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(60,72,88,0.10);
   padding: 36px 28px;
+  width: 480px;
+  height: 500px;
+  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
   min-width: 0;
+  max-width: 100%;
+}
+
+/* CENTRA VISUALMENTE EL TITULO DE LA TABLA */
+.stat-section-title
+ {
+  font-size: 1.34rem;
+  font-weight: 700;
+  color: #4e5553;
+  margin-bottom: 0px;
+  text-align: center;
+  padding-left: 18px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+/* ---- TABLA VISUAL PRO ---- */
+.stat-table-scroll {
+  flex: 1 0 auto;
+  width: 100%;
+  padding-bottom: 28px;
+  box-sizing: border-box;
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 1.05rem;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.stat-table th, .stat-table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid #e1ede9;
+  border-right: 1px solid #e1ede9;
+  text-align: left;
+  background: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.stat-table th {
+  background: #eaf7f1;
+  color: #23835c;
+  font-weight: 700;
+  font-size: 1.12rem;
+  border-bottom: 2px solid #d3f0e1;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.stat-table td {
+  color: #111211;
+}
+
+.stat-table th:last-child,
+.stat-table td:last-child {
+  border-right: none;
+}
+
+/* Hover para filas */
+.stat-table tbody tr:hover td {
+  background: #f3faf6;
+}
+
+.stat-table-scroll {
+  max-height: 355px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #23835c #e8ebe8;
+}
+
+.stat-table tbody {
+  max-height: 355px;
+  overflow-y: auto;
 }
 
 @media (max-width: 900px) {
@@ -92,8 +141,36 @@ body {
   .stat-chart-area {
     padding: 18px 10px;
     border-radius: 13px;
+    width: 98vw;
+    max-width: 98vw;
+    height: 380px;
+  }
+  .stat-table-scroll,
+  .stat-table tbody {
+    max-height: 160px;
+    padding-bottom: 10px;
   }
   .stat-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
+  .stat-section-title.stat-table-title,
+  .stat-table-title {
+    font-size: 1.05rem;
+    padding-left: 8px;
+  }
+}
+
+/* Scrollbar bonito */
+.stat-table-scroll::-webkit-scrollbar,
+.stat-table tbody::-webkit-scrollbar {
+  width: 7px;
+}
+.stat-table-scroll::-webkit-scrollbar-thumb,
+.stat-table tbody::-webkit-scrollbar-thumb {
+  background: #23835c;
+  border-radius: 6px;
+}
+.stat-table-scroll::-webkit-scrollbar-track,
+.stat-table tbody::-webkit-scrollbar-track {
+  background: #e8ebe8;
 }
