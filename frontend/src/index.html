@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>PokeStake</title>
-  <!-- Material Icons CDN -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="styles/index.css">
+  <link rel="stylesheet" href="styles/header.css">
 </head>
 <body>
-  <!-- Aquí se insertará la barra superior -->
   <div id="main-header"></div>
 
-  <!-- SEARCH BAR -->
   <div class="search-bar-area">
     <input type="text" id="search" placeholder="Search Pokemon...">
     <button class="search-btn" id="search-btn" title="Search">
@@ -19,7 +17,6 @@
     </button>
   </div>
 
-  <!-- CARDS + PAGINATION ARROWS -->
   <div class="cards-pagination-wrapper">
     <button class="pagination-arrow-btn" id="prev-page" title="Previous" aria-label="Previous">
       <span class="material-icons">chevron_left</span>
@@ -33,8 +30,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="js/supabaseConfig.js"></script>
   <script src="js/contenfulConfig.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
   <script type="module" src="js/index.js"></script>
-  <!-- Importa el loader de la barra superior -->
   <script src="js/loadHeader.js"></script>
 </body>
 </html>

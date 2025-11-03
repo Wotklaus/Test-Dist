@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokémon Statistics</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/statistics.css">
+  <!-- Chart.js CDN for static pie chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="main-header"></div>
+  <div class="stat-wrapper">
+    <h1 class="stat-title">Search Statistics</h1>
+    <div class="stat-main-content">
+      <section class="stat-table-area">
+        <h2 class="stat-section-title">Your Searches</h2>
+        <table class="stat-table">
+          <thead>
+            <tr>
+              <th>Pokémon Name</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bulbasaur</td>
+              <td>2025-11-01 09:34</td>
+            </tr>
+            <tr>
+              <td>Pikachu</td>
+              <td>2025-11-01 10:17</td>
+            </tr>
+            <tr>
+              <td>Charmander</td>
+              <td>2025-11-02 13:56</td>
+            </tr>
+            <tr>
+              <td>Pikachu</td>
+              <td>2025-11-02 14:21</td>
+            </tr>
+            <tr>
+              <td>Squirtle</td>
+              <td>2025-11-02 19:08</td>
+            </tr>
+            <tr>
+              <td>Pikachu</td>
+              <td>2025-11-02 23:13</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="stat-chart-area">
+        <h2 class="stat-section-title">Search Count by Pokémon</h2>
+        <canvas id="searchPieChart" width="340" height="340"></canvas>
+      </section>
+    </div>
+  </div>
+  <script src="js/loadHeader.js"></script>
+  <script>
+    // Static dataset for demonstration -- replace with dynamic data later
+    const pokemonSearchCounts = {
+      "Bulbasaur": 1,
+      "Pikachu": 3,
+      "Charmander": 1,
+      "Squirtle": 1
+    };
+
+    const ctx = document.getElementById('searchPieChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(pokemonSearchCounts),
+        datasets: [{
+          data: Object.values(pokemonSearchCounts),
+          backgroundColor: [
+            '#6bb474',
+            '#f7d442',
+            '#fa7369',
+            '#3b86f5'
+          ]
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

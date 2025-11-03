@@ -1,7 +1,4 @@
-// index.js
-
 document.addEventListener("DOMContentLoaded", async function () {
-  // Validación de sesión con JWT en localStorage
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
@@ -18,11 +15,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   const PAGE_SIZE = 8;
   let filteredList = [];
 
-  // Botones de paginación
   const prevBtn = document.getElementById("prev-page");
   const nextBtn = document.getElementById("next-page");
 
-  // --- FAVORITES BUTTON ---
   const favoritesBtn = document.getElementById("favorites-btn");
   if (favoritesBtn) {
     favoritesBtn.addEventListener("click", function () {
@@ -85,7 +80,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (nextBtn) nextBtn.disabled = (currentPage === pageCount || pageCount === 0);
   }
 
-  // Listeners de flechas
   if (prevBtn) {
     prevBtn.addEventListener("click", function () {
       if (currentPage > 1) {
@@ -105,7 +99,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // ----- FAVORITOS -----
   async function toggleFavorite(pokemon, btn) {
     const isFavorited = btn.classList.contains('favorited');
     if (!token) {
@@ -116,7 +109,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     try {
       let response;
       if (isFavorited) {
-        // Quitar favorito
         response = await fetch("http://localhost:3000/api/favorites", {
           method: "DELETE",
           headers: {
@@ -126,7 +118,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           body: JSON.stringify({ pokemon_id: pokemon.id })
         });
       } else {
-        // Agregar favorito
         response = await fetch("http://localhost:3000/api/favorites", {
           method: "POST",
           headers: {
@@ -157,7 +148,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Cargar la lista de favoritos del usuario desde tu backend Express
   async function loadFavorites() {
     try {
       const response = await fetch("http://localhost:3000/api/favorites", {
@@ -165,14 +155,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
       if (!response.ok) return [];
       const data = await response.json();
-      // Tu backend responde con array de objetos, extrae los nombres
       return (data.favorites || []).map(fav => fav.pokemon_name);
     } catch (error) {
       return [];
     }
   }
 
-  // Load Pokémon (incluyendo id)
   container.textContent = "Loading Pokémon...";
   fetch("https://pokeapi.co/api/v2/pokemon?limit=36")
     .then(response => response.json())
@@ -200,14 +188,72 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
   // --- SEARCH BAR ---
-  if (searchInput) {
-    searchInput.addEventListener("input", function () {
-      const filter = searchInput.value.toLowerCase();
+  const searchBtn = document.getElementById("search-btn");
+  if (searchBtn && searchInput) {
+    // Búsqueda por debounce cuando el usuario deja de escribir
+    searchInput.addEventListener("input", _.debounce(function () {
+      const filter = searchInput.value.trim().toLowerCase();
       filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
-
       renderPokemons(filteredList.length ? filteredList : pokemons);
+
+      if (filter && userId) {
+        fetch("http://localhost:3000/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            pokemon_name: filter
+          })
+        }).catch(error => console.error("Error saving search:", error));
+      }
+    }, 400));
+
+    // Búsqueda inmediata al presionar Enter
+    searchInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const filter = searchInput.value.trim().toLowerCase();
+        filteredList = pokemons.filter(p => p.name.includes(filter));
+        currentPage = 1;
+        renderPokemons(filteredList.length ? filteredList : pokemons);
+
+        if (filter && userId) {
+          fetch("http://localhost:3000/api/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: userId,
+              pokemon_name: filter
+            })
+          }).catch(error => console.error("Error saving search:", error));
+        }
+      }
     });
+
+    // Búsqueda con throttle en el botón de la lupa + bloqueo del botón
+    searchBtn.addEventListener("click", _.throttle(function () {
+      searchBtn.disabled = true; // BLOQUEA el botón
+
+      const filter = searchInput.value.trim().toLowerCase();
+      filteredList = pokemons.filter(p => p.name.includes(filter));
+      currentPage = 1;
+      renderPokemons(filteredList.length ? filteredList : pokemons);
+
+      if (filter && userId) {
+        fetch("http://localhost:3000/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            pokemon_name: filter
+          })
+        }).catch(error => console.error("Error saving search:", error));
+      }
+
+      setTimeout(() => {
+        searchBtn.disabled = false; // DESBLOQUEA el botón tras 3 segundos
+      }, 3000);
+    }, 3000)); // SOLO ejecuta búsqueda cada 3 segundos aunque hagan spam click
   }
 
   const articlesBtn = document.getElementById("articles-btn");
@@ -217,7 +263,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // ---- LOGOUT ----
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {

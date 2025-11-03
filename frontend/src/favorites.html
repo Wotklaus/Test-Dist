@@ -3,20 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title>My Favorites</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="styles/header.css">
   <link rel="stylesheet" href="styles/favorites.css">
 </head>
 <body>
-  <header class="header-bar">
-    <h1>Favorite Pokémon</h1>
-  </header>
+  <div id="main-header"></div>
+
   <main>
-    <div id="favorites-list" class="card-container"></div>
+    <div class="favorites-title-area">
+      <h1 class="favorites-title">
+        
+        Favorite Pokémon
+      </h1>
+    </div>
+    <div id="favorites-list" class="card-container">
+      <!-- JS renders favorite cards here -->
+    </div>
   </main>
-  <div class="bottom-bar">
-    <button id="back-btn" class="logout-btn">Back</button>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/supabaseConfig.js"></script>
+
+  <script src="js/loadHeader.js"></script>
   <script type="module" src="js/favorites.js"></script>
 </body>
 </html>
