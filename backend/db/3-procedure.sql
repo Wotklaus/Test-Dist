@@ -5,19 +5,24 @@ CREATE OR REPLACE FUNCTION login_user(_email TEXT)
 RETURNS TABLE(
   id INTEGER,
   email TEXT,
-  password TEXT
+  password TEXT,
+  first_name TEXT,
+  last_name TEXT,
+  role_id INTEGER      -- <--- OJO: este es el nombre de la columna en tu tabla
 ) AS $$
 BEGIN
   RETURN QUERY
   SELECT 
     u.id,
     u.email::TEXT,
-    u.password::TEXT
+    u.password::TEXT,
+    u.first_name::TEXT,
+    u.last_name::TEXT,
+    u.role_id::INTEGER
   FROM users u
   WHERE u.email = _email;
 END;
 $$ LANGUAGE plpgsql;
-
 -- =============================================
 --                  Roles 
 -- =============================================

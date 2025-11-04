@@ -1,40 +1,84 @@
-document.addEventListener("DOMContentLoaded", () => {
-  fetch("components/header-bar.html")
-    .then(resp => resp.text())
-    .then(html => {
-      document.getElementById("main-header").innerHTML = html;
+document.addEventListener("DOMContentLoaded", async () => {
+  const headerContainer = document.getElementById("main-header");
 
-      // Ahora los eventos se agregan aquí, ¡después de insertar el header!
-      const favBtn = document.getElementById("favorites-btn");
-      if (favBtn) {
-        favBtn.addEventListener("click", function() {
-          window.location.href = "favorites.html";
-        });
-      }
+  try {
+    const resp = await fetch("components/header-bar.html");
+    const html = await resp.text();
+    headerContainer.innerHTML = html;
 
-      const articlesBtn = document.getElementById("articles-btn");
-      if (articlesBtn) {
-        articlesBtn.addEventListener("click", function() {
-          window.location.href = "articles.html";
-        });
-      }
+    // 🔹 Obtenemos el rol
+    const userRole = localStorage.getItem("userRole");
+    console.log("Rol detectado:", userRole);
 
-      const statsBtn = document.getElementById("statistics-btn");
-      if (statsBtn) {
-        statsBtn.addEventListener("click", function() {
-          window.location.href = "statistics.html";
-        });
-      }
+    // 🔹 Referencias a los botones
+    const adminButtons = [
+      "manage-roles-btn",
+      "manage-users-btn",
+      "manage-articles-btn", 
+      "admin-statistics-btn"
+    ];
 
-      const logoutBtn = document.getElementById("logout-btn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", function() {
-          // Elimina el token y datos de sesión
-          localStorage.removeItem("token");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userEmail");
-          window.location.href = "login.html";
-        });
+    const userButtons = [
+      "favorites-btn",
+      "articles-btn",
+      "statistics-btn"
+    ];
+
+    // 🔹 Mostrar/ocultar según el rol
+    if (userRole === "1") {
+      // ADMIN → Solo botones de "Manage"
+      adminButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = "inline-block";
+      });
+      
+      // OCULTAR botones de usuario normal
+      userButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = "none";
+      });
+      
+    } else {
+      // USUARIO NORMAL → Solo botones normales
+      userButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = "inline-block";
+      });
+      
+      // OCULTAR botones de admin
+      adminButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = "none";
+      });
+    }
+
+    // 🔹 Asignar navegación a los botones (resto igual)
+    const routes = {
+      "favorites-btn": "favorites.html",
+      "articles-btn": "articles.html", 
+      "statistics-btn": "statistics.html",
+      "manage-roles-btn": "manage_roles.html",
+      "manage-users-btn": "manage_users.html",
+      "manage-articles-btn": "manage_articles.html",
+      "admin-statistics-btn": "admin_statistics.html"
+    };
+
+    Object.entries(routes).forEach(([id, path]) => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener("click", () => (window.location.href = path));
       }
     });
+
+    // 🔹 Logout
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "login.html";
+      });
+    }
+  } catch (error) {
+    console.error("Error cargando el header:", error);
+  }
 });

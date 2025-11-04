@@ -19,6 +19,8 @@ const favoriteRoutes = require('./src/routes/favorite.routes');
 const registerRoutes = require('./src/routes/register.routes');
 const roleRoutes = require('./src/routes/role.routes');
 const historyRoutes = require('./src/routes/history.routes');
+const refreshRoutes = require('./src/routes/refresh.routes');
+
 
 // Endpoints
 app.use('/api/login', loginRoutes);
@@ -26,6 +28,7 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/register', registerRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/refresh', refreshRoutes);
 
 app.listen(PORT, () => {
   console.log(`Express server listening on port ${PORT}`);
