@@ -64,6 +64,18 @@
 ### 🔧 INFRAESTRUCTURA Y DEPLOYMENT
 | # | Objetivo | Estado | Implementación | Fecha | Notas |
 |---|----------|---------|----------------|-------|--------|
-| 34 | Docker optimization | 🔄 PENDIENTE | Usuario no-root + imagen ligera | TBD | Seguridad containers |
-| 35 | Testing suite | 🔄 OPCIONAL | Unit + Integration tests | TBD | Calidad de código |
-| 36 | Documentación API | 🔄 OPCIONAL | Swagger/Postman | TBD | Para equipo |
+| 34 | Debugging setup | 🔄 PENDIENTE | VS Code breakpoints + debugging | TBD | Para defensa |
+| 35 | Testing suite | 🔄 PENDIENTE | Jest + Supertest + coverage | TBD | Unit + Integration |
+| 36 | Docker optimization | 🔄 PENDIENTE | Multi-stage + non-root user | TBD | Production ready |
+| 37 | CI/CD Pipeline | 🔄 PENDIENTE | GitHub Actions + auto-tests | TBD | dev → qa → main |
+| 38 | Pull Request workflow | 🔄 PENDIENTE | Branch strategy + reviews | TBD | Team collaboration |
+| 39 | Render deployment | 🔄 PENDIENTE | Cloud hosting + PostgreSQL | TBD | Public access |
+| 40 | HTTPS + Security | 🔄 PENDIENTE | SSL + production headers | TBD | Production security |
+
+### 🌐 REAL-TIME Y CLOUD
+| # | Objetivo | Estado | Implementación | Fecha | Notas |
+|---|----------|---------|----------------|-------|--------|
+| 41 | Real-time database | 🔄 PENDIENTE | Supabase integration | TBD | Live data sync |
+| 42 | Hybrid architecture | 🔄 PENDIENTE | Backend + Supabase RT | TBD | Best of both worlds |
+| 43 | WebSocket fallback | 🔄 OPCIONAL | Backup real-time method | TBD | Browser compatibility |
+| 44 | JAMstack optimization | 🔄 OPCIONAL | Static + dynamic hybrid | TBD | Performance boost |
