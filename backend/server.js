@@ -1,13 +1,23 @@
 require('dotenv').config();
 const express = require('express');
-const pool = require('./src/config/postgres'); // Adjust path if necessary
+const pool = require('./src/config/postgres');
 const path = require('path');
 const cors = require('cors');
+const cookieParser = require('cookie-parser'); // NEW: For reading cookies
+const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth'); // NEW: Cookie middleware
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// NEW: Cookie parser middleware
+app.use(cookieParser());
+
+// CORS configuration - UPDATED for cookies
+app.use(cors({
+    origin: true, // In development accepts any origin
+    credentials: true // IMPORTANT: Required for sending/receiving cookies
+}));
+
 app.use(express.json());
 
 // Serve static frontend files
@@ -21,6 +31,10 @@ const roleRoutes = require('./src/routes/role.routes');
 const historyRoutes = require('./src/routes/history.routes');
 const refreshRoutes = require('./src/routes/refresh.routes');
 
+// NEW: Apply cookie middleware to protected routes
+app.use('/api/favorites', extractTokenFromCookies); // Extract token from cookies before JWT verification
+app.use('/api/history', extractTokenFromCookies);   // Apply to any other protected routes
+app.use('/api/refresh', extractTokenFromCookies);   // For refresh endpoint too
 
 // Endpoints
 app.use('/api/login', loginRoutes);

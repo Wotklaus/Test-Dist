@@ -6,11 +6,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const html = await resp.text();
     headerContainer.innerHTML = html;
 
-    // 🔹 Obtenemos el rol
+    // Get user role from localStorage (non-sensitive data)
     const userRole = localStorage.getItem("userRole");
-    console.log("Rol detectado:", userRole);
+    console.log("Role detected:", userRole);
 
-    // 🔹 Referencias a los botones
+    // Button references
     const adminButtons = [
       "manage-roles-btn",
       "manage-users-btn",
@@ -24,35 +24,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       "statistics-btn"
     ];
 
-    // 🔹 Mostrar/ocultar según el rol
+    // Show/hide based on role
     if (userRole === "1") {
-      // ADMIN → Solo botones de "Manage"
+      // ADMIN → Only "Manage" buttons
       adminButtons.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.style.display = "inline-block";
       });
       
-      // OCULTAR botones de usuario normal
+      // HIDE normal user buttons
       userButtons.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.style.display = "none";
       });
       
     } else {
-      // USUARIO NORMAL → Solo botones normales
+      // NORMAL USER → Only normal buttons
       userButtons.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.style.display = "inline-block";
       });
       
-      // OCULTAR botones de admin
+      // HIDE admin buttons
       adminButtons.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.style.display = "none";
       });
     }
 
-    // 🔹 Asignar navegación a los botones (resto igual)
+    // Assign navigation to buttons
     const routes = {
       "favorites-btn": "favorites.html",
       "articles-btn": "articles.html", 
@@ -70,15 +70,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // 🔹 Logout
+    // UPDATED: Logout with HTTP-Only cookie clearing
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          console.log("Logout initiated - clearing session...");
+          
+          // NEW: Call logout endpoint to clear HTTP-Only cookies on server
+          await fetch(`${window.location.origin}/api/logout`, {
+            method: 'POST',
+            credentials: 'include' // Important: to send cookies for clearing
+          });
+          
+          console.log("Server cookies cleared successfully");
+        } catch (error) {
+          console.log("Server logout error (proceeding anyway):", error.message);
+        }
+        
+        // Clear local user data
         localStorage.clear();
+        console.log("Local storage cleared");
+        
+        // Redirect to login
         window.location.href = "login.html";
       });
     }
   } catch (error) {
-    console.error("Error cargando el header:", error);
+    console.error("Error loading header:", error);
   }
 });

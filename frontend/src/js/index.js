@@ -1,12 +1,17 @@
-document.addEventListener("DOMContentLoaded", async function () {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+import { getSession, getFavorites, addFavorite, removeFavorite } from './api.js';
 
-  if (!token || !userId) {
+document.addEventListener("DOMContentLoaded", async function () {
+  // NEW: Check session using HTTP-Only cookies instead of localStorage tokens
+  const session = getSession();
+  
+  if (!session) {
+    console.log("No user session found - redirecting to login");
     window.location.href = "login.html";
     return;
   }
 
+  console.log("User session validated:", session.userEmail);
+  
   const container = document.getElementById("pokemon-list");
   const searchInput = document.getElementById("search");
   let pokemons = [];
@@ -99,68 +104,68 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // UPDATED: Use API functions instead of raw fetch calls
   async function toggleFavorite(pokemon, btn) {
     const isFavorited = btn.classList.contains('favorited');
-    if (!token) {
-      alert("Please log in.");
-      return;
-    }
-
+    
     try {
-      let response;
+      let result;
       if (isFavorited) {
-        response = await fetch("http://localhost:3000/api/favorites", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
-          body: JSON.stringify({ pokemon_id: pokemon.id })
-        });
+        console.log("Removing favorite:", pokemon.name);
+        result = await removeFavorite(pokemon.id);
       } else {
-        response = await fetch("http://localhost:3000/api/favorites", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
-          body: JSON.stringify({ pokemon_id: pokemon.id, pokemon_name: pokemon.name })
-        });
+        console.log("Adding favorite:", pokemon.name);
+        result = await addFavorite(pokemon.id, pokemon.name);
       }
 
-      if (response.ok) {
-        if (isFavorited) {
-          favorites = favorites.filter(name => name !== pokemon.name);
-          btn.classList.remove('favorited');
-          btn.innerHTML = "🤍";
-        } else {
-          favorites.push(pokemon.name);
-          btn.classList.add('favorited');
-          btn.innerHTML = "❤️";
-        }
+      if (result.error) {
+        console.error("Favorite operation failed:", result.error);
+        alert("Error updating favorites: " + result.error);
+        return;
+      }
+
+      // Update UI on success
+      if (isFavorited) {
+        favorites = favorites.filter(name => name !== pokemon.name);
+        btn.classList.remove('favorited');
+        btn.innerHTML = "🤍";
+        console.log("Favorite removed successfully");
       } else {
-        const errorData = await response.json();
-        alert("Error updating favorites: " + (errorData.error || ""));
+        favorites.push(pokemon.name);
+        btn.classList.add('favorited');
+        btn.innerHTML = "❤️";
+        console.log("Favorite added successfully");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Network error in toggleFavorite:", error);
       alert("Network error");
     }
   }
 
+  // UPDATED: Use API function instead of raw fetch
   async function loadFavorites() {
+    console.log("Loading user favorites...");
     try {
-      const response = await fetch("http://localhost:3000/api/favorites", {
-        headers: { "Authorization": "Bearer " + token }
-      });
-      if (!response.ok) return [];
-      const data = await response.json();
-      return (data.favorites || []).map(fav => fav.pokemon_name);
+      const result = await getFavorites();
+      
+      if (result.error) {
+        console.error("Failed to load favorites:", result.error);
+        return [];
+      }
+      
+      const favoriteNames = (result.favorites || result || []).map(fav => 
+        fav.pokemon_name || fav.name
+      );
+      
+      console.log("Favorites loaded:", favoriteNames.length, "items");
+      return favoriteNames;
     } catch (error) {
+      console.error("Error loading favorites:", error);
       return [];
     }
   }
 
+  // Load Pokemon data
   container.textContent = "Loading Pokémon...";
   fetch("https://pokeapi.co/api/v2/pokemon?limit=36")
     .then(response => response.json())
@@ -180,36 +185,40 @@ document.addEventListener("DOMContentLoaded", async function () {
         favorites = await loadFavorites();
         filteredList = [];
         renderPokemons(pokemons);
+        console.log("Pokemon data loaded successfully");
       });
     })
     .catch(error => {
       container.textContent = "Error loading Pokémon";
-      console.error(error);
+      console.error("Error loading Pokemon:", error);
     });
 
-  // --- SEARCH BAR ---
+  // UPDATED: Search functionality with HTTP-Only cookies
   const searchBtn = document.getElementById("search-btn");
   if (searchBtn && searchInput) {
-    // Búsqueda por debounce cuando el usuario deja de escribir
+    
+    // Debounced search on input
     searchInput.addEventListener("input", _.debounce(function () {
       const filter = searchInput.value.trim().toLowerCase();
       filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
       renderPokemons(filteredList.length ? filteredList : pokemons);
 
-      if (filter && userId) {
+      // Save search history with HTTP-Only cookies
+      if (filter && session.userId) {
         fetch("http://localhost:3000/api/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
           body: JSON.stringify({
-            user_id: userId,
+            user_id: session.userId,
             pokemon_name: filter
           })
         }).catch(error => console.error("Error saving search:", error));
       }
     }, 400));
 
-    // Búsqueda inmediata al presionar Enter
+    // Immediate search on Enter key
     searchInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         const filter = searchInput.value.trim().toLowerCase();
@@ -217,12 +226,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         currentPage = 1;
         renderPokemons(filteredList.length ? filteredList : pokemons);
 
-        if (filter && userId) {
+        if (filter && session.userId) {
           fetch("http://localhost:3000/api/history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
             body: JSON.stringify({
-              user_id: userId,
+              user_id: session.userId,
               pokemon_name: filter
             })
           }).catch(error => console.error("Error saving search:", error));
@@ -230,30 +240,31 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
 
-    // Búsqueda con throttle en el botón de la lupa + bloqueo del botón
+    // Throttled search on button click
     searchBtn.addEventListener("click", _.throttle(function () {
-      searchBtn.disabled = true; // BLOQUEA el botón
+      searchBtn.disabled = true;
 
       const filter = searchInput.value.trim().toLowerCase();
       filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
       renderPokemons(filteredList.length ? filteredList : pokemons);
 
-      if (filter && userId) {
+      if (filter && session.userId) {
         fetch("http://localhost:3000/api/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
           body: JSON.stringify({
-            user_id: userId,
+            user_id: session.userId,
             pokemon_name: filter
           })
         }).catch(error => console.error("Error saving search:", error));
       }
 
       setTimeout(() => {
-        searchBtn.disabled = false; // DESBLOQUEA el botón tras 3 segundos
+        searchBtn.disabled = false;
       }, 3000);
-    }, 3000)); // SOLO ejecuta búsqueda cada 3 segundos aunque hagan spam click
+    }, 3000));
   }
 
   const articlesBtn = document.getElementById("articles-btn");
@@ -263,10 +274,26 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // UPDATED: Logout functionality will be handled by loadHeader.js
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
+    logoutBtn.addEventListener("click", async function () {
+      try {
+        console.log("Logout initiated");
+        
+        // Call logout endpoint to clear HTTP-Only cookies
+        await fetch("http://localhost:3000/api/logout", {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        console.log("Server cookies cleared");
+      } catch (error) {
+        console.log("Server logout error (proceeding anyway):", error.message);
+      }
+      
       localStorage.clear();
+      console.log("Local storage cleared");
       window.location.href = "login.html";
     });
   }

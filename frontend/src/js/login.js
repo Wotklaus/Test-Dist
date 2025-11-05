@@ -1,4 +1,4 @@
-console.log("Login.js cargado"); // Confirmación de carga
+console.log("Login.js loaded"); // Load confirmation
 
 import { loginUser } from './api.js';
 
@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("login-form");
   if (!form) return;
 
-  // Limpia el mensaje de error al escribir
+  // Clear error message when typing
   ["username", "password"].forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const email = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    // Hace el login y recibe el usuario
+    // Perform login and receive user data
     const result = await loginUser(email, password);
 
     if (result.error) {
@@ -31,16 +31,20 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // GUARDA TODOS LOS DATOS DEL USUARIO
-    // Ajustado para tu backend: el usuario está en result.user y el rol es result.user.role_id
-    localStorage.setItem("token", result.token);
+    // SAVE USER DATA ONLY (tokens are now in secure HTTP-Only cookies)
+    // Adjusted for your backend: user data is in result.user and role is result.user.role_id
+    // REMOVED: localStorage.setItem("token", result.token); - tokens now in HTTP-Only cookies
     localStorage.setItem("userId", result.user.id);
     localStorage.setItem("userEmail", result.user.email);
     localStorage.setItem("userFirstName", result.user.first_name);
     localStorage.setItem("userLastName", result.user.last_name);
-    localStorage.setItem("userRole", String(result.user.role_id)); // SOLO este campo, nada de suposiciones
+    localStorage.setItem("userRole", String(result.user.role_id)); // Only this field, no assumptions
 
-    // Redirige a index.html
+    console.log("Login successful - user data saved, tokens in secure cookies");
+    console.log("Authentication tokens are now managed by HTTP-Only cookies");
+    console.log("User will remain logged in with automatic token refresh");
+
+    // Redirect to index.html
     window.location.href = "index.html";
   });
 });

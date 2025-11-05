@@ -1,18 +1,20 @@
 import { getSession, getFavorites } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Validación del token en localStorage
+  // Session validation using HTTP-Only cookies
   const session = getSession();
-  if (!session || !session.token) {
+  if (!session) {
+    console.log("No user session found - redirecting to login");
     window.location.href = "login.html";
     return;
   }
-  const token = session.token;
+
+  console.log("User session validated for favorites page:", session.userEmail);
 
   const favoritesList = document.getElementById("favorites-list");
   favoritesList.textContent = "Loading favorites...";
 
-  // Botón para volver al index
+  // Back button to return to index
   const backBtn = document.getElementById("back-btn");
   if (backBtn) {
     backBtn.addEventListener("click", function() {
@@ -20,27 +22,41 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // Pide favoritos, si falla la sesión te manda al login
+  // Request favorites - if session fails, redirect to login
   async function renderFavorites() {
-    const result = await getFavorites(token);
+    console.log("Fetching user favorites...");
+    
+    // UPDATED: Remove token parameter - API function handles HTTP-Only cookies
+    const result = await getFavorites();
 
-    // Si la autenticación falla, te manda al login
+    // If authentication fails, redirect to login
     if (result.error && (result.status === 401 || result.status === 403)) {
+      console.log("Authentication failed - redirecting to login");
       window.location.href = "login.html";
       return;
     }
 
-    // Si no hay favoritos, lo muestra
+    // Handle other errors
+    if (result.error) {
+      console.error("Error loading favorites:", result.error);
+      favoritesList.textContent = "Error loading favorites. Please try again.";
+      return;
+    }
+
+    // If no favorites, show message
     if (!result.favorites || result.favorites.length === 0) {
+      console.log("No favorites found for user");
       favoritesList.textContent = "You have no favorite Pokémon yet.";
       return;
     }
 
-    // Saca los IDs y pide detalles visuales a la PokéAPI
+    console.log("Favorites loaded:", result.favorites.length, "items");
+
+    // Extract IDs and request visual details from PokéAPI
     const pokemonIds = result.favorites.map(fav => fav.pokemon_id);
     const pokemons = await loadFavoritePokemons(pokemonIds);
 
-    // Renderiza tarjetas visuales completas
+    // Render complete visual cards
     favoritesList.innerHTML = "";
     pokemons.forEach(pokemon => {
       const card = document.createElement("div");
@@ -54,15 +70,27 @@ document.addEventListener("DOMContentLoaded", async function () {
       `;
       favoritesList.appendChild(card);
     });
+
+    console.log("Favorites rendered successfully");
   }
 
   async function loadFavoritePokemons(pokemonIds) {
-    // Pide datos completos de la PokéAPI por cada ID
+    console.log("Loading detailed Pokemon data for", pokemonIds.length, "favorites");
+    
+    // Request complete data from PokéAPI for each ID
     const promises = pokemonIds.map(id =>
       fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        .then(res => res.json())
-        .then(info =>
-          fetch(info.species.url)
+        .then(res => {
+          if (!res.ok) {
+            console.warn(`Failed to load Pokemon ${id}`);
+            return null;
+          }
+          return res.json();
+        })
+        .then(info => {
+          if (!info) return null;
+          
+          return fetch(info.species.url)
             .then(res => res.json())
             .then(species => {
               if (species.evolution_chain) {
@@ -70,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                   .then(res => res.json())
                   .then(chain => ({
                     name: capitalize(info.name),
-                    img: info.sprites.front_default,
+                    img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
                     type: info.types.map(t => capitalize(t.type.name)).join(", "),
                     power: info.stats[1].base_stat,
                     evolutions: getEvolutions(chain.chain),
@@ -78,16 +106,35 @@ document.addEventListener("DOMContentLoaded", async function () {
               } else {
                 return {
                   name: capitalize(info.name),
-                  img: info.sprites.front_default,
+                  img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
                   type: info.types.map(t => capitalize(t.type.name)).join(", "),
                   power: info.stats[1].base_stat,
                   evolutions: [],
                 };
               }
             })
-        )
+            .catch(error => {
+              console.warn(`Error loading species data for ${info.name}:`, error);
+              return {
+                name: capitalize(info.name),
+                img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
+                type: info.types.map(t => capitalize(t.type.name)).join(", "),
+                power: info.stats[1].base_stat,
+                evolutions: [],
+              };
+            });
+        })
+        .catch(error => {
+          console.warn(`Error loading Pokemon ${id}:`, error);
+          return null;
+        })
     );
-    return Promise.all(promises);
+    
+    const results = await Promise.all(promises);
+    const validPokemons = results.filter(pokemon => pokemon !== null);
+    
+    console.log("Pokemon details loaded:", validPokemons.length, "valid entries");
+    return validPokemons;
   }
 
   function getEvolutions(chain) {
@@ -104,5 +151,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  renderFavorites();
+  // Initialize favorites rendering
+  try {
+    await renderFavorites();
+  } catch (error) {
+    console.error("Error initializing favorites page:", error);
+    favoritesList.textContent = "Error loading favorites. Please refresh the page.";
+  }
 });

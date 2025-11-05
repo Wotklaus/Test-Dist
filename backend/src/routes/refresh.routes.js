@@ -2,47 +2,40 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 
-/**
- * POST /api/refresh
- * Purpose: Renew access token using refresh token
- * Body: { refreshToken: "refresh_token_here" }
- * Response: { token: "new_access_token" }
- */
 router.post('/', async (req, res) => {
-    console.log("Refresh token request received");
+    console.log("TOKEN REFRESH REQUEST RECEIVED");
 
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
-    // Validate refresh token is provided
     if (!refreshToken) {
-        console.log("No refresh token provided");
+        console.log("No refresh token found in cookies");
+        console.log("Available cookies:", Object.keys(req.cookies || {}));
         return res.status(401).json({
-            error: 'Refresh token is required',
-            code: 'MISSING_REFRESH_TOKEN'
+            error: 'Refresh token not found in cookies',
+            code: 'MISSING_REFRESH_TOKEN',
+            requiresLogin: true
         });
     }
 
-    console.log("Validating refresh token...");
+    console.log("Validating refresh token from cookie...");
+    console.log("Token preview:", refreshToken.substring(0, 20) + "...");
 
     try {
-        // Verify refresh token signature and expiration
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-        console.log("✅ Refresh token is valid!");
-        console.log("👤 User ID:", decoded.id);
-        console.log("📧 Email:", decoded.email);
-        console.log("🎭 Role:", decoded.role_id);
+        console.log("Refresh token is valid");
+        console.log("User ID:", decoded.id);
+        console.log("Email:", decoded.email);
+        console.log("Role:", decoded.role_id);
 
-        // Verify token type is 'refresh'
         if (decoded.type !== 'refresh') {
-            console.log("❌ Invalid token type:", decoded.type);
+            console.log("Invalid token type:", decoded.type);
             return res.status(401).json({
                 error: 'Invalid token type',
                 code: 'INVALID_TOKEN_TYPE'
             });
         }
 
-        // Generate NEW access token with same user data
         const newAccessTokenPayload = {
             id: decoded.id,
             email: decoded.email,
@@ -56,39 +49,64 @@ router.post('/', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN || '2m' }
         );
 
-        console.log("🆕 New access token generated successfully");
-        console.log("⏰ Token valid for:", process.env.JWT_EXPIRES_IN || '2m');
+        console.log("NEW ACCESS TOKEN GENERATED AND SENT");
+        console.log("Token valid for:", process.env.JWT_EXPIRES_IN || '2m');
 
-        // Return new access token
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 2 * 60 * 1000,
+            path: '/'
+        });
+
+        console.log("New access token saved in HTTP-Only cookie");
+
         res.status(200).json({
             message: 'Token refreshed successfully',
-            token: newAccessToken,
             expiresIn: process.env.JWT_EXPIRES_IN || '2m',
             refreshedAt: new Date().toISOString()
         });
 
     } catch (error) {
-        console.log("❌ Error validating refresh token:", error.message);
+        console.log("TOKEN REFRESH FAILED:", error.message);
 
-        // Handle different JWT errors
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/'
+        });
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/'
+        });
+
+        console.log("Invalid cookies cleared");
+
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({
                 error: 'Refresh token has expired',
-                code: 'REFRESH_TOKEN_EXPIRED'
+                code: 'REFRESH_TOKEN_EXPIRED',
+                requiresLogin: true
             });
         }
 
         if (error.name === 'JsonWebTokenError') {
             return res.status(401).json({
                 error: 'Invalid refresh token format',
-                code: 'INVALID_REFRESH_TOKEN'
+                code: 'INVALID_REFRESH_TOKEN',
+                requiresLogin: true
             });
         }
 
-        // Generic error for other cases
         return res.status(401).json({
             error: 'Invalid refresh token',
-            code: 'REFRESH_TOKEN_INVALID'
+            code: 'REFRESH_TOKEN_INVALID',
+            requiresLogin: true
         });
     }
 });

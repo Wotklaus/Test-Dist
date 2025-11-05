@@ -4,11 +4,11 @@ function getQueryParam(name) {
   return urlParams.get(name);
 }
 
-// Formateador de fecha
+// Date formatter
 function formatFecha(fechaIso) {
   if (!fechaIso) return "";
   const fecha = new Date(fechaIso);
-  return fecha.toLocaleDateString('es-ES', {
+  return fecha.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -19,24 +19,34 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById('articles-list');
   container.textContent = "Loading article...";
 
-  // Trae los artículos desde Contentful (ya configurado en tu proyecto)
-  const articles = await fetchArticlesWithAssets(); // <-- Esta función debe traerte los 3 artículos publicados
+  console.log("Loading articles from Contentful...");
+
+  // Fetch articles from Contentful (already configured in your project)
+  const articles = await fetchArticlesWithAssets(); // This function should bring the 3 published articles
 
   if (!articles || articles.length === 0) {
+    console.log("No articles found in Contentful");
     container.textContent = "No articles found";
     return;
   }
 
-  // Obtén el slug de la URL
+  console.log("Articles loaded:", articles.length, "items");
+
+  // Get slug from URL
   const slug = getQueryParam("slug");
-  // Busca el artículo por el slug, o por defecto el primero (Satoshi Tajiri)
+  // Find article by slug, or default to first one (Satoshi Tajiri)
   let selectedArticle = articles[0];
   if (slug) {
     const found = articles.find(a => a.slug === slug);
-    if (found) selectedArticle = found;
+    if (found) {
+      selectedArticle = found;
+      console.log("Article selected by slug:", slug);
+    }
   }
 
-  // Muestra solo el artículo seleccionado
+  console.log("Displaying article:", selectedArticle.title);
+
+  // Display only the selected article
   container.innerHTML = "";
   const card = document.createElement('div');
   card.className = "article-card";
@@ -56,23 +66,53 @@ document.addEventListener("DOMContentLoaded", async function () {
   `;
   container.appendChild(card);
 
-  // Panel lateral con links a los 3 artículos
+  // Sidebar panel with links to the 3 articles
   const sidebarUl = document.getElementById('other-articles');
-  sidebarUl.innerHTML = "";
-  articles.forEach(article => {
-    const li = document.createElement('li');
-    li.innerHTML = `<a href="articles.html?slug=${article.slug}">${article.title}</a>`;
-    sidebarUl.appendChild(li);
-  });
+  if (sidebarUl) {
+    sidebarUl.innerHTML = "";
+    articles.forEach(article => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="articles.html?slug=${article.slug}">${article.title}</a>`;
+      sidebarUl.appendChild(li);
+    });
+    console.log("Sidebar navigation created for", articles.length, "articles");
+  }
 
-  // Botón de regreso
-  document.getElementById("back-btn").onclick = function() {
-    window.location.href = "index.html";
-  };
+  // Back button
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn) {
+    backBtn.onclick = function() {
+      console.log("Navigating back to index");
+      window.location.href = "index.html";
+    };
+  }
 
-  // Botón de logout
-  document.getElementById("logout-btn").onclick = function() {
-    localStorage.removeItem("token");
-    window.location.href = "login.html";
-  };
+  // UPDATED: Logout button with HTTP-Only cookie clearing
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.onclick = async function() {
+      try {
+        console.log("Logout initiated from articles page");
+        
+        // NEW: Call logout endpoint to clear HTTP-Only cookies on server
+        await fetch(`${window.location.origin}/api/logout`, {
+          method: 'POST',
+          credentials: 'include' // Important: to send cookies for clearing
+        });
+        
+        console.log("Server cookies cleared successfully");
+      } catch (error) {
+        console.log("Server logout error (proceeding anyway):", error.message);
+      }
+      
+      // Clear local user data
+      localStorage.clear();
+      console.log("Local storage cleared");
+      
+      // Redirect to login
+      window.location.href = "login.html";
+    };
+  }
+
+  console.log("Articles page initialized successfully");
 });
