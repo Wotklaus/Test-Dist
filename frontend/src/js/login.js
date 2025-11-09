@@ -1,12 +1,12 @@
-// login.js -- Handles the login process for PokeStake
+console.log("Login.js loaded"); // Load confirmation
 
-console.log("Login JS working :)");
+import { loginUser } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("login-form");
   if (!form) return;
 
-  // Clear login message on user input
+  // Clear error message when typing
   ["username", "password"].forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -22,21 +22,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const email = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    // Login using Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    // Perform login and receive user data
+    const result = await loginUser(email, password);
 
-    if (error) {
-      document.getElementById("login-message").textContent = error.message || "Login failed";
+    if (result.error) {
+      document.getElementById("login-message").textContent = result.error || "Login failed";
       document.getElementById("login-message").style.color = "red";
       return;
     }
 
-    // Save session data in localStorage
-    localStorage.setItem("token", data.session.access_token);
-    localStorage.setItem("userId", data.user.id);
-    localStorage.setItem("userEmail", data.user.email);
+    // SAVE USER DATA ONLY (tokens are now in secure HTTP-Only cookies)
+    // Adjusted for your backend: user data is in result.user and role is result.user.role_id
+    // REMOVED: localStorage.setItem("token", result.token); - tokens now in HTTP-Only cookies
+    localStorage.setItem("userId", result.user.id);
+    localStorage.setItem("userEmail", result.user.email);
+    localStorage.setItem("userFirstName", result.user.first_name);
+    localStorage.setItem("userLastName", result.user.last_name);
+    localStorage.setItem("userRole", String(result.user.role_id)); // Only this field, no assumptions
 
-    // Redirect to home page (index.html) after successful login
+    console.log("Login successful - user data saved, tokens in secure cookies");
+    console.log("Authentication tokens are now managed by HTTP-Only cookies");
+    console.log("User will remain logged in with automatic token refresh");
+
+    // Redirect to index.html
     window.location.href = "index.html";
   });
 });

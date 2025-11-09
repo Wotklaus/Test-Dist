@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokémon Statistics</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/statistics.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="main-header"></div>
+  <div class="stat-wrapper">
+    <h1 class="stat-title">Search Statistics</h1>
+    <div class="stat-main-content">
+      <section class="stat-table-area">
+        <h2 class="stat-section-title">Your Searches</h2>
+        <div class="stat-table-scroll">
+          <table class="stat-table">
+            <thead>
+              <tr>
+                <th>Pokémon Name</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS renderiza aquí -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section class="stat-chart-area">
+        <h2 class="stat-section-title">Search Count by Pokémon</h2>
+        <canvas id="searchPieChart" width="340" height="340"></canvas>
+        <!-- Leyenda del gráfico aquí si lo tienes -->
+      </section>
+    </div>
+  </div>
+  <script src="js/loadHeader.js"></script>
+  <script type="module" src="js/statistics.js"></script>
+</body>
+</html>
