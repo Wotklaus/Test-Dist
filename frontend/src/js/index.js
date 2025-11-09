@@ -1,7 +1,28 @@
-console.log("Index JS working :)");
+import { getSession, getFavorites, addFavorite, removeFavorite } from './api.js';
 
-document.addEventListener("DOMContentLoaded", function () {
-  // FAVORITES BUTTON
+document.addEventListener("DOMContentLoaded", async function () {
+  // NEW: Check session using HTTP-Only cookies instead of localStorage tokens
+  const session = getSession();
+  
+  if (!session) {
+    console.log("No user session found - redirecting to login");
+    window.location.href = "login.html";
+    return;
+  }
+
+  console.log("User session validated:", session.userEmail);
+  
+  const container = document.getElementById("pokemon-list");
+  const searchInput = document.getElementById("search");
+  let pokemons = [];
+  let favorites = [];
+  let currentPage = 1;
+  const PAGE_SIZE = 8;
+  let filteredList = [];
+
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
+
   const favoritesBtn = document.getElementById("favorites-btn");
   if (favoritesBtn) {
     favoritesBtn.addEventListener("click", function () {
@@ -9,21 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  const container = document.getElementById("pokemon-list");
-  const searchInput = document.getElementById("search"); // ID debe coincidir con el HTML
-  let pokemons = [];
-  let favorites = [];
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
-
-  let currentPage = 1;
-  const PAGE_SIZE = 8;
-
   function renderPokemons(list) {
     container.innerHTML = "";
     if (list.length === 0) {
       container.innerHTML = "<p>No Pokémon found</p>";
-      renderPagination(0);
+      updateArrows(0);
       return;
     }
     const start = (currentPage - 1) * PAGE_SIZE;
@@ -43,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
         favBtn.classList.add("favorited");
       }
       favBtn.onclick = function () {
-        toggleFavorite(pokemon.name, favBtn);
+        toggleFavorite(pokemon, favBtn);
       };
       card.appendChild(favBtn);
 
@@ -65,61 +76,96 @@ document.addEventListener("DOMContentLoaded", function () {
       container.appendChild(card);
     });
 
-    renderPagination(list.length);
+    updateArrows(list.length);
   }
 
-  function renderPagination(total) {
+  function updateArrows(total) {
     const pageCount = Math.ceil(total / PAGE_SIZE);
-    const paginationBar = document.getElementById("pagination-bar");
-    if (!paginationBar) return;
+    if (prevBtn) prevBtn.disabled = (currentPage === 1 || pageCount === 0);
+    if (nextBtn) nextBtn.disabled = (currentPage === pageCount || pageCount === 0);
+  }
 
-    if (pageCount <= 1) {
-      paginationBar.innerHTML = "";
-      return;
-    }
-
-    let paginationHTML = '';
-    for (let i = 1; i <= pageCount; i++) {
-      paginationHTML += `<button class="page-btn${i === currentPage ? " active" : ""}" data-page="${i}">${i}</button>`;
-    }
-    paginationBar.innerHTML = paginationHTML;
-    document.querySelectorAll('.page-btn').forEach(btn => {
-      btn.onclick = function() {
-        currentPage = parseInt(this.getAttribute('data-page'));
-        renderPokemons(pokemons);
-      };
+  if (prevBtn) {
+    prevBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPokemons(filteredList.length ? filteredList : pokemons);
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", function () {
+      const totalList = filteredList.length ? filteredList : pokemons;
+      const maxPage = Math.ceil(totalList.length / PAGE_SIZE);
+      if (currentPage < maxPage) {
+        currentPage++;
+        renderPokemons(totalList);
+      }
     });
   }
 
-  // Modificado para enviar id y name
-  function toggleFavorite(pokemonName, btn) {
+  // UPDATED: Use API functions instead of raw fetch calls
+  async function toggleFavorite(pokemon, btn) {
     const isFavorited = btn.classList.contains('favorited');
-    const method = isFavorited ? 'DELETE' : 'POST';
+    
+    try {
+      let result;
+      if (isFavorited) {
+        console.log("Removing favorite:", pokemon.name);
+        result = await removeFavorite(pokemon.id);
+      } else {
+        console.log("Adding favorite:", pokemon.name);
+        result = await addFavorite(pokemon.id, pokemon.name);
+      }
 
-    // Busca el objeto Pokémon por nombre en el arreglo
-    const pokemon = pokemons.find(p => p.name === pokemonName);
+      if (result.error) {
+        console.error("Favorite operation failed:", result.error);
+        alert("Error updating favorites: " + result.error);
+        return;
+      }
 
-    fetch('/api/favorites', {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        pokemon_id: pokemon.id,        // Enviando el id
-        pokemon_name: pokemon.name     // Enviando el nombre
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Actualiza favoritos como lista de nombres
-        favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-        btn.classList.toggle('favorited');
-        btn.innerHTML = btn.classList.contains('favorited') ? "❤️" : "🤍";
-      });
+      // Update UI on success
+      if (isFavorited) {
+        favorites = favorites.filter(name => name !== pokemon.name);
+        btn.classList.remove('favorited');
+        btn.innerHTML = "🤍";
+        console.log("Favorite removed successfully");
+      } else {
+        favorites.push(pokemon.name);
+        btn.classList.add('favorited');
+        btn.innerHTML = "❤️";
+        console.log("Favorite added successfully");
+      }
+    } catch (error) {
+      console.error("Network error in toggleFavorite:", error);
+      alert("Network error");
+    }
   }
 
-  // Load Pokémon (incluyendo id)
+  // UPDATED: Use API function instead of raw fetch
+  async function loadFavorites() {
+    console.log("Loading user favorites...");
+    try {
+      const result = await getFavorites();
+      
+      if (result.error) {
+        console.error("Failed to load favorites:", result.error);
+        return [];
+      }
+      
+      const favoriteNames = (result.favorites || result || []).map(fav => 
+        fav.pokemon_name || fav.name
+      );
+      
+      console.log("Favorites loaded:", favoriteNames.length, "items");
+      return favoriteNames;
+    } catch (error) {
+      console.error("Error loading favorites:", error);
+      return [];
+    }
+  }
+
+  // Load Pokemon data
   container.textContent = "Loading Pokémon...";
   fetch("https://pokeapi.co/api/v2/pokemon?limit=36")
     .then(response => response.json())
@@ -131,47 +177,123 @@ document.addEventListener("DOMContentLoaded", function () {
             name: pokemon.name,
             img: info.sprites.front_default || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png",
             type: info.types.map(t => t.type.name).join(", "),
-            id: info.id // <--- Aquí agregamos el id
+            id: info.id
           }))
       );
-      Promise.all(promises).then(results => {
+      Promise.all(promises).then(async results => {
         pokemons = results;
-        fetch('/api/favorites', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        })
-          .then(res => res.json())
-          .then(data => {
-            favorites = (data.favorites || []).map(fav => fav.pokemon_name);
-            renderPokemons(pokemons);
-          })
-          .catch(() => {
-            favorites = [];
-            renderPokemons(pokemons);
-          });
+        favorites = await loadFavorites();
+        filteredList = [];
+        renderPokemons(pokemons);
+        console.log("Pokemon data loaded successfully");
       });
     })
     .catch(error => {
       container.textContent = "Error loading Pokémon";
-      console.error(error);
+      console.error("Error loading Pokemon:", error);
     });
 
-  // --- SEARCH BAR ---
-  if (searchInput) {
-    searchInput.addEventListener("input", function () {
-      const filter = searchInput.value.toLowerCase();
-      const filtered = pokemons.filter(p => p.name.includes(filter));
+  // UPDATED: Search functionality with HTTP-Only cookies
+  const searchBtn = document.getElementById("search-btn");
+  if (searchBtn && searchInput) {
+    
+    // Debounced search on input
+    searchInput.addEventListener("input", _.debounce(function () {
+      const filter = searchInput.value.trim().toLowerCase();
+      filteredList = pokemons.filter(p => p.name.includes(filter));
       currentPage = 1;
-      renderPokemons(filtered);
+      renderPokemons(filteredList.length ? filteredList : pokemons);
+
+      // Save search history with HTTP-Only cookies
+      if (filter && session.userId) {
+        fetch("http://localhost:3000/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
+          body: JSON.stringify({
+            user_id: session.userId,
+            pokemon_name: filter
+          })
+        }).catch(error => console.error("Error saving search:", error));
+      }
+    }, 400));
+
+    // Immediate search on Enter key
+    searchInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const filter = searchInput.value.trim().toLowerCase();
+        filteredList = pokemons.filter(p => p.name.includes(filter));
+        currentPage = 1;
+        renderPokemons(filteredList.length ? filteredList : pokemons);
+
+        if (filter && session.userId) {
+          fetch("http://localhost:3000/api/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
+            body: JSON.stringify({
+              user_id: session.userId,
+              pokemon_name: filter
+            })
+          }).catch(error => console.error("Error saving search:", error));
+        }
+      }
+    });
+
+    // Throttled search on button click
+    searchBtn.addEventListener("click", _.throttle(function () {
+      searchBtn.disabled = true;
+
+      const filter = searchInput.value.trim().toLowerCase();
+      filteredList = pokemons.filter(p => p.name.includes(filter));
+      currentPage = 1;
+      renderPokemons(filteredList.length ? filteredList : pokemons);
+
+      if (filter && session.userId) {
+        fetch("http://localhost:3000/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
+          body: JSON.stringify({
+            user_id: session.userId,
+            pokemon_name: filter
+          })
+        }).catch(error => console.error("Error saving search:", error));
+      }
+
+      setTimeout(() => {
+        searchBtn.disabled = false;
+      }, 3000);
+    }, 3000));
+  }
+
+  const articlesBtn = document.getElementById("articles-btn");
+  if (articlesBtn) {
+    articlesBtn.addEventListener("click", function () {
+      window.location.href = "articles.html";
     });
   }
 
-  // ---- LOGOUT ----
+  // UPDATED: Logout functionality will be handled by loadHeader.js
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userEmail");
+    logoutBtn.addEventListener("click", async function () {
+      try {
+        console.log("Logout initiated");
+        
+        // Call logout endpoint to clear HTTP-Only cookies
+        await fetch("http://localhost:3000/api/logout", {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        console.log("Server cookies cleared");
+      } catch (error) {
+        console.log("Server logout error (proceeding anyway):", error.message);
+      }
+      
+      localStorage.clear();
+      console.log("Local storage cleared");
       window.location.href = "login.html";
     });
   }

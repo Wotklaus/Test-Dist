@@ -1,22 +1,22 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const UserDAO = require("../dao/userDAO");
-const UserDTO = require("../dto/userDTO");
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const UserDAO = require('../dao/userDAO');
+const UserDTO = require('../dto/userDTO');
 
 const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
-    // Validación básica
+    // Basic validation
     const { first_name, last_name, document_id, phone, email, password } = req.body;
     if (!first_name || !last_name || !email || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Hash de la contraseña
+    // Password hashing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Construir DTO
+    // Build DTO
     const userDTO = new UserDTO({
       first_name,
       last_name,
@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
       password: hashedPassword
     });
 
-    // Registrar usuario vía DAO
+    // Register user via DAO
     const result = await UserDAO.registerUser(userDTO);
 
     if (result.success) {

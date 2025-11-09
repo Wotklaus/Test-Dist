@@ -1,0 +1,312 @@
+html, body {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #f2f2f2;
+  color: #232526;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==== FIXED TOP HEADER ==== */
+.header-bar {
+  width: 100%;
+  background: #5cc08c;
+  box-shadow: 0 2px 14px rgba(60,72,88,0.08);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  min-height: 70px;
+  box-sizing: border-box;
+}
+
+.header-title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.header-actions button {
+  background: #fff;
+  color: #4c4b4b;
+  font-weight: 600;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 26px;
+  font-size: 1.03rem;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(44,78,128,0.06);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-actions button .material-icons {
+  font-size: 22px;
+  vertical-align: middle;
+  color: #4c4b4b;
+  transition: color 0.18s;
+}
+
+.header-actions button:hover,
+.header-actions button:focus {
+  background: #ffffff;
+  color: #4c4b4b;
+}
+.header-actions button:hover .material-icons,
+.header-actions button:focus .material-icons {
+  color: #4c4b4b;
+}
+
+/* ==== SEARCH BAR ==== */
+.search-bar-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 90px 0 50px 0;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#search {
+  width: 320px;
+  max-width: 90vw;
+  padding: 13px 18px;
+  border-radius: 12px 0 0 12px;
+  border: 1.5px solid #c2c2c2;
+  font-size: 1.09rem;
+  background: #fafbfc;
+  color: #232526;
+  box-shadow: 0 1px 6px rgba(120,120,130,0.04);
+  transition: border 0.14s;
+  box-sizing: border-box;
+}
+
+#search:focus {
+  border: 1.5px solid #c2c2c2;
+  outline: none;
+  background: #f3f5f7;
+}
+
+.search-btn {
+  background: #61f2a7;
+  color: #fff;
+  border: none;
+  border-radius: 0 12px 12px 0;
+  padding: 13px 22px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 8px rgba(44,78,128,0.09);
+  transition: background 0.13s, transform 0.11s;
+  margin-left: -2px;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn .material-icons {
+  color: #fff;
+  font-size: 22px;
+  vertical-align: middle;
+  transition: color 0.18s;
+}
+
+.search-btn:hover,
+.search-btn:focus {
+  background: #59d193;
+}
+
+.search-btn:hover .material-icons,
+.search-btn:focus .material-icons {
+  color: #fff;
+}
+
+/* ==== POKEMON CARDS ==== */
+.cards-pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 22px;
+  margin-bottom: 32px;
+  padding: 0 48px; /* <-- esto separa las flechas del borde */
+  box-sizing: border-box;
+}
+
+.pagination-arrow-btn {
+  background: #5cc08c;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(44,78,128,0.11);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.14s, transform 0.14s;
+}
+.pagination-arrow-btn:disabled {
+  background: #b2e6cc;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.pagination-arrow-btn:hover:not(:disabled),
+.pagination-arrow-btn:focus:not(:disabled) {
+  background: #2e7d53;
+  transform: scale(1.09);
+}
+
+/* El grid de cards va dentro del wrapper, sin overflow ni max-height */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  justify-items: center;
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.poke-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(60,72,88,0.09);
+  padding: 26px 26px 22px 26px;
+  width: 100%;
+  max-width: 245px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.18s, transform 0.14s;
+  position: relative;
+  border: 1px solid #ececec;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.poke-card:hover {
+  box-shadow: 0 12px 32px 2px rgba(30,30,30,0.13);
+  transform: translateY(-4px) scale(1.025);
+  border-color: #bfc8d1;
+  z-index: 10;
+}
+
+.poke-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.poke-name {
+  font-weight: 600;
+  color: #232526;
+  font-size: 1.15rem;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.poke-type {
+  color: #2eab43;
+  font-size: 1.03rem;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.favorite-btn-corner {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  font-size: 1.75rem;
+  cursor: pointer;
+  z-index: 2;
+  color: #bbb;
+  transition: color 0.13s, transform 0.11s;
+}
+.favorite-btn-corner.favorited {
+  color: #ff1900;
+}
+.favorite-btn-corner:hover {
+  color: #232526;
+  transform: scale(1.18);
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 900px) {
+  .header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0 12px;
+    min-height: unset;
+  }
+  .header-actions {
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .search-bar-area {
+    justify-content: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  #search {
+    width: 60vw;
+    min-width: 140px;
+  }
+  .cards-pagination-wrapper {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card-container {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 0 2vw;
+  }
+  .poke-card {
+    max-width: 97vw;
+    padding: 14px 4vw 20px 4vw;
+  }
+}

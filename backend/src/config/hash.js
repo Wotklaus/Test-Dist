@@ -2,9 +2,8 @@ const bcrypt = require('bcryptjs');
 
 // Tus contraseñas originales
 const passwords = {
-  'user1@demo.com': '1234',
-  'user2@demo.com': 'abcd',
-  'admin@demo.com': 'admin'
+  'admin@system.com': 'admin',
+  'user@system.com': 'user'
 };
 
 const saltRounds = 10;

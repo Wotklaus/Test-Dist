@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokémon Articles</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/articles.css">
+</head>
+<body>
+  <div id="main-header"></div>
+  <div class="page-wrapper">
+    <h1 class="main-title">Pokémon Articles</h1>
+    <div class="main-content">
+      <div id="articles-list" class="article-card-container"></div>
+      <aside class="sidebar">
+        <h3>Other Articles</h3>
+        <ul id="other-articles"></ul>
+      </aside>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabaseConfig.js"></script>
+  <script src="js/contenfulConfig.js"></script>
+  <script src="js/loadHeader.js"></script>
+  <script type="module" src="js/articles.js"></script>
+</body>
+</html>
