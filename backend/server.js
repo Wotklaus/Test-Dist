@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://test-dist-front.onrender.com'
+  'https://test-dist-frontend.onrender.com'
 ];
 
 app.use(cors({
