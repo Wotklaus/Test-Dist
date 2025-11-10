@@ -5,9 +5,9 @@ const path = require('path');
 const router = express.Router();
 
 const sqlFiles = [
-  path.join(__dirname, '../db/2-schema.sql'),
-  path.join(__dirname, '../db/3-procedure.sql'),
-  path.join(__dirname, '../db/4-backup.sql')
+  path.join(__dirname, '../../db/2-schema.sql'),
+  path.join(__dirname, '../../db/3-procedure.sql'),
+  path.join(__dirname, '../../db/4-backup.sql')
 ];
 
 router.get('/import-sql', async (req, res) => {
