@@ -9,6 +9,12 @@ const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Para distinguir entre producción y desarrollo/local
+const isProduction = process.env.NODE_ENV === "production";
+const FRONTEND_URL = isProduction
+  ? 'https://test-dist-frontend.onrender.com'     // Cambia esto si tu frontend cambia de URL
+  : 'http://localhost:3000';
+
 // CORS SETUP >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const allowedOrigins = [
   'http://localhost:3000',
@@ -16,6 +22,7 @@ const allowedOrigins = [
   'https://test-dist-frontend.onrender.com'
 ];
 
+// Si quieres compatibilidad con varios origins en desarrollo, deja así:
 app.use(cors({
   origin: function (origin, callback) {
     // Permite requests sin origin (Postman, curl)
@@ -26,16 +33,27 @@ app.use(cors({
       return callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // Para que el preflight (OPTIONS) funcione bien
 }));
+
+// En producción pura podrías dejar solo:
+//// app.use(cors({
+////   origin: FRONTEND_URL,
+////   credentials: true,
+////   optionsSuccessStatus: 200
+//// }));
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // Middlewares
 app.use(cookieParser());
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../frontend/src')));
+// NO uses 'express.static' para servir el frontend si está deployado aparte en otro render.
+// La siguiente línea es útil solo si quieres servir archivos frontend EN EL MISMO SERVIDOR (local/dev),
+// pero si tu frontend está en otro Render, puedes comentar o quitar.
+//// app.use(express.static(path.join(__dirname, '../frontend/src')));
 
 // Routes
 const loginRoutes = require('./src/routes/login.routes');
