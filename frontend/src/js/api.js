@@ -1,4 +1,6 @@
-export const API_URL = 'http://localhost:3000';
+export const API_URL = window.location.hostname.includes("localhost")
+  ? "http://localhost:3000"
+  : "https://test-dist.onrender.com";
 
 // LOGGING FUNCTION with timestamps
 function logWithTimestamp(message, type = 'info') {
