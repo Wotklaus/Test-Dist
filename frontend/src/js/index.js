@@ -1,4 +1,4 @@
-import { API_URL, getSession, getFavorites, addFavorite, removeFavorite } from './api.js';
+import { getSession, getFavorites, addFavorite, removeFavorite } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
   // NEW: Check session using HTTP-Only cookies instead of localStorage tokens
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.error("Error loading Pokemon:", error);
     });
 
-  // UPDATED: Search functionality with API_URL & HTTP-Only cookies
+  // UPDATED: Search functionality with HTTP-Only cookies
   const searchBtn = document.getElementById("search-btn");
   if (searchBtn && searchInput) {
     
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       // Save search history with HTTP-Only cookies
       if (filter && session.userId) {
-        fetch(`${API_URL}/api/history`, {
+        fetch("http://localhost:3000/api/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderPokemons(filteredList.length ? filteredList : pokemons);
 
         if (filter && session.userId) {
-          fetch(`${API_URL}/api/history`, {
+          fetch("http://localhost:3000/api/history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       renderPokemons(filteredList.length ? filteredList : pokemons);
 
       if (filter && session.userId) {
-        fetch(`${API_URL}/api/history`, {
+        fetch("http://localhost:3000/api/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: 'include', // IMPORTANT: Send HTTP-Only cookies
@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log("Logout initiated");
         
         // Call logout endpoint to clear HTTP-Only cookies
-        await fetch(`${API_URL}/api/logout`, {
+        await fetch("http://localhost:3000/api/logout", {
           method: 'POST',
           credentials: 'include'
         });
