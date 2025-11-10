@@ -8,6 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN rm -f import.js
 
 EXPOSE 3000
 
