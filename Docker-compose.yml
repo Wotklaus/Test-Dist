@@ -22,7 +22,9 @@ services:
       - PGDATABASE=pokemon
       - PGPORT=5432
       - JWT_SECRET=mi_super_secreto
-      - JWT_EXPIRES_IN=1h
+      - JWT_EXPIRES_IN=2m
+      - JWT_REFRESH_SECRET=mi_super_secreto_refresh
+      - JWT_REFRESH_EXPIRES_IN=7d
 
   postgres:
     image: postgres:16
