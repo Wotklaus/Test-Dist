@@ -9,13 +9,29 @@ const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cookieParser());
+// CORS SETUP >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://test-dist-front.onrender.com'
+];
 
 app.use(cors({
-    origin: true,
-    credentials: true
+  origin: function (origin, callback) {
+    // Permite requests sin origin (Postman, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+// Middlewares
+app.use(cookieParser());
 app.use(express.json());
 
 // Serve static frontend files
@@ -42,7 +58,6 @@ app.use('/api/register', registerRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/refresh', refreshRoutes);
-// TU ENDPOINT DE IMPORTACIÓN (sin middleware de seguridad)
 app.use('/api/import', importRoutes);
 
 app.listen(PORT, () => {
