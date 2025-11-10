@@ -3,19 +3,17 @@ const express = require('express');
 const pool = require('./src/config/postgres');
 const path = require('path');
 const cors = require('cors');
-const cookieParser = require('cookie-parser'); // NEW: For reading cookies
-const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth'); // NEW: Cookie middleware
+const cookieParser = require('cookie-parser');
+const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// NEW: Cookie parser middleware
 app.use(cookieParser());
 
-// CORS configuration - UPDATED for cookies
 app.use(cors({
-    origin: true, // In development accepts any origin
-    credentials: true // IMPORTANT: Required for sending/receiving cookies
+    origin: true,
+    credentials: true
 }));
 
 app.use(express.json());
@@ -32,12 +30,10 @@ const historyRoutes = require('./src/routes/history.routes');
 const refreshRoutes = require('./src/routes/refresh.routes');
 const importRoutes = require('./src/routes/import.routes');
 
-
-// NEW: Apply cookie middleware to protected routes
-app.use('/api/favorites', extractTokenFromCookies); // Extract token from cookies before JWT verification
-app.use('/api/history', extractTokenFromCookies);   // Apply to any other protected routes
-app.use('/api/refresh', extractTokenFromCookies);   // For refresh endpoint too
-
+// Protected routes with middleware
+app.use('/api/favorites', extractTokenFromCookies);
+app.use('/api/history', extractTokenFromCookies);
+app.use('/api/refresh', extractTokenFromCookies);
 
 // Endpoints
 app.use('/api/login', loginRoutes);
@@ -46,6 +42,7 @@ app.use('/api/register', registerRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/refresh', refreshRoutes);
+// TU ENDPOINT DE IMPORTACIÓN (sin middleware de seguridad)
 app.use('/api/import', importRoutes);
 
 app.listen(PORT, () => {
