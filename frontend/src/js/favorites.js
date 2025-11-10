@@ -1,4 +1,4 @@
-import { getSession, getFavorites } from './api.js';
+import { API_URL, getSession, getFavorites } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
   // Session validation using HTTP-Only cookies

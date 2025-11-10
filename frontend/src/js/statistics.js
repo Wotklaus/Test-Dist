@@ -1,4 +1,4 @@
-import { getSession } from './api.js';
+import { API_URL, getSession } from './api.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
   // Session validation using HTTP-Only cookies
@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   try {
     console.log("Fetching search history for user:", session.userId);
     
-    // Make request to backend using HTTP-Only cookies
-    const res = await fetch(`http://localhost:3000/api/history/${session.userId}`, {
+    // Make request to backend using API_URL and HTTP-Only cookies
+    const res = await fetch(`${API_URL}/api/history/${session.userId}`, {
       credentials: 'include' // IMPORTANT: Send HTTP-Only cookies for authentication
     });
 
