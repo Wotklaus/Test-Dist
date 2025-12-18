@@ -1,14 +1,14 @@
-name: Build and Push Docker Images
+name: Build and Push Docker Images to Docker Hub
 
 on:
   push:
     branches:
-      - main
-      - feature/dockerize
+      - main                # O cambia a 'feature/dockerize' si lo prefieres
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
