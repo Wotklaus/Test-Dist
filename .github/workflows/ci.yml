@@ -3,14 +3,14 @@ name: Build and Push Docker Images
 on:
   push:
     branches:
-      - main                 # O pon la rama que prefieras, por ejemplo 'feature/dockerize'
+      - main
+      - feature/dockerize
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -28,7 +28,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/back-app:latest
+          tags: wotklaus86682/frontbackdb:backend
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -36,4 +36,4 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/front-app:latest
+          tags: wotklaus86682/frontbackdb:frontend
