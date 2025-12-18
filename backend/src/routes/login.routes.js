@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
+  const isProduction = process.env.NODE_ENV === 'production';
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -76,25 +77,25 @@ router.post('/', async (req, res) => {
 
     // Save tokens in HTTP-Only cookies
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,        // JavaScript cannot access this cookie
-      secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
-      sameSite: 'strict',    // CSRF protection - only same-site requests
-      maxAge: 2 * 60 * 1000, // 2 minutes in milliseconds
-      path: '/'              // Available throughout the entire application
+      httpOnly: true,        
+      secure: isProduction,  // Only HTTPS in production
+      sameSite: isProduction ? 'none' : 'lax',   // 'none' for cross-site, 'lax' for local/dev
+      maxAge: 2 * 60 * 1000, 
+      path: '/'              
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,        // JavaScript cannot access this cookie
-      secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
-      sameSite: 'strict',    // CSRF protection - only same-site requests
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      path: '/'              // Available throughout the entire application
+      httpOnly: true,        
+      secure: isProduction,  // Only HTTPS in production
+      sameSite: isProduction ? 'none' : 'lax',   // 'none' for cross-site, 'lax' for local/dev
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+      path: '/'              
     });
 
     console.log("Tokens saved in HTTP-Only cookies successfully");
     console.log("AccessToken cookie: HttpOnly=true, MaxAge=2min");
     console.log("RefreshToken cookie: HttpOnly=true, MaxAge=7days");
-    console.log("Security flags: Secure=" + (process.env.NODE_ENV === 'production') + ", SameSite=strict");
+    console.log(`Security flags: Secure=${isProduction}, SameSite=${isProduction ? "none" : "lax"}`);
 
     // Response without tokens (they are now secure in HTTP-Only cookies)
     res.status(200).json({
@@ -106,10 +107,6 @@ router.post('/', async (req, res) => {
         last_name: user.last_name,
         role_id: user.role_id
       }
-      // No longer sending 'token' or 'refreshToken' in JSON response
-      // They are now securely stored in HTTP-Only cookies
-      // Frontend cannot access them via JavaScript (XSS protection)
-      // Browser will automatically send them with each request
     });
 
   } catch (error) {
