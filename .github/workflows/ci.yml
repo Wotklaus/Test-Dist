@@ -3,7 +3,7 @@ name: Build and Push Docker Images to Docker Hub
 on:
   push:
     branches:
-      - main                # O cambia a 'feature/dockerize' si lo prefieres
+      - main   # Solo ejecuta el workflow cuando hay cambios en main
 
 jobs:
   build-and-push:
