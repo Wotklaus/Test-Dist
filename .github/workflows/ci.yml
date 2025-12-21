@@ -1,8 +1,10 @@
-name: Build and Push Docker image to Docker Hub
+name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - feature/dockerize
 
 jobs:
   build-and-push:
@@ -11,39 +13,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
-          tags: wotklaus86682/frontbackdb:latest
+          tags: wotklaus86682/frontbackdb:backend
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
-
-      - name: Refresh AWS Auto Scaling Group
-        run: |
-          echo "Starting instance refresh for Auto Scaling Group..."
-          aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name docker-auto-scaling-group \
-            --preferences MinHealthyPercentage=50,InstanceWarmup=300
-          echo "Instance refresh initiated successfully!"
-
-      - name: Check refresh status
-        run: |
-          echo "Checking refresh status..."
-          aws autoscaling describe-instance-refreshes \
-            --auto-scaling-group-name docker-auto-scaling-group \
-            --query 'InstanceRefreshes[0].[Status,PercentageComplete]' \
-            --output table
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: wotklaus86682/frontbackdb:frontend
