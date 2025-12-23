@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# VPC y subnets PRIMER BLOQUE OBLIGATORIO Y CORRECTO
+# Datos VPC/Subnets
 data "aws_vpc" "default" {
   default = true
 }
@@ -14,7 +14,7 @@ data "aws_subnets" "public" {
   }
 }
 
-# AMI Amazon Linux 2 oficial
+# AMI oficial Amazon Linux 2
 data "aws_ami" "amzn2" {
   most_recent = true
   owners      = ["amazon"]
@@ -24,7 +24,7 @@ data "aws_ami" "amzn2" {
   }
 }
 
-# Security group para el ALB
+# Security Groups
 resource "aws_security_group" "alb_sg" {
   name   = "alb-sg"
   vpc_id = data.aws_vpc.default.id
@@ -44,7 +44,6 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-# Security group para app (ASG): recibe HTTP del ALB y SSH abierto para práctica
 resource "aws_security_group" "asg_sg" {
   name   = "asg-sg"
   vpc_id = data.aws_vpc.default.id
@@ -65,6 +64,15 @@ resource "aws_security_group" "asg_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Permitir tráfico desde ALB al backend (puerto 8080)
+  ingress {
+    description     = "Backend API desde ALB"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -73,7 +81,6 @@ resource "aws_security_group" "asg_sg" {
   }
 }
 
-# Security group para la base de datos (da acceso solo desde ASG y SSH cualquiera)
 resource "aws_security_group" "db_sg" {
   name   = "db-sg"
   vpc_id = data.aws_vpc.default.id
@@ -176,7 +183,7 @@ EOF
 )
 }
 
-# ASG de la aplicación (fron/backend docker, MIN/MAX=2)
+# ASG para app
 resource "aws_autoscaling_group" "app_asg" {
   name                = "app-asg"
   max_size            = 2
@@ -198,7 +205,7 @@ resource "aws_autoscaling_group" "app_asg" {
   }
 }
 
-# ALB, TG, LISTENER, Attachment del ASG
+# ALB Principal
 resource "aws_lb" "app_alb" {
   name               = "app-alb"
   internal           = false
@@ -207,11 +214,12 @@ resource "aws_lb" "app_alb" {
   security_groups    = [aws_security_group.alb_sg.id]
 }
 
+# TG para backend (puerto 8080)
 resource "aws_lb_target_group" "app_tg" {
-  name        = "app-tg"
-  port        = 8080
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.default.id
+  name     = "app-tg"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
   health_check {
     path                = "/"
     protocol            = "HTTP"
@@ -223,51 +231,81 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
+# TG para frontend (puerto 80)
+resource "aws_lb_target_group" "frontend_tg" {
+  name     = "frontend-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+# Adjunta ambos TG al ASG
+resource "aws_autoscaling_attachment" "asg_alb_backend" {
+  autoscaling_group_name = aws_autoscaling_group.app_asg.id
+  lb_target_group_arn    = aws_lb_target_group.app_tg.arn
+}
+resource "aws_autoscaling_attachment" "asg_alb_frontend" {
+  autoscaling_group_name = aws_autoscaling_group.app_asg.id
+  lb_target_group_arn    = aws_lb_target_group.frontend_tg.arn
+}
+
+# LISTENER del ALB
 resource "aws_lb_listener" "app_listener" {
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg.arn
+    target_group_arn = aws_lb_target_group.frontend_tg.arn
   }
 }
 
-resource "aws_autoscaling_attachment" "asg_alb" {
-  autoscaling_group_name = aws_autoscaling_group.app_asg.id
-  lb_target_group_arn    = aws_lb_target_group.app_tg.arn   # <-- CORRECTO
+# REGLA: /api/* se va al backend
+resource "aws_lb_listener_rule" "api_rule" {
+  listener_arn = aws_lb_listener.app_listener.arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
 }
 
-# OUTPUTS COMPLETOS
+# OUTPUTS
 output "alb_dns" {
   description = "URL del load balancer"
   value       = aws_lb.app_alb.dns_name
 }
-
-output "alb_arn" {
-  description = "ARN del load balancer"
-  value       = aws_lb.app_alb.arn
-}
-
 output "db_instance_public_dns" {
   description = "DNS público de la EC2 DB (Postgres)"
   value       = aws_instance.db.public_dns
 }
-
 output "db_instance_public_ip" {
   description = "IP pública de la EC2 DB (Postgres)"
   value       = aws_instance.db.public_ip
 }
-
 output "db_instance_private_ip" {
   description = "IP privada (usada en app) de la EC2 DB"
   value       = aws_instance.db.private_ip
 }
-
 output "asg_name" {
   value = aws_autoscaling_group.app_asg.name
 }
-
 output "asg_launch_template_id" {
   value = aws_launch_template.app_lt.id
 }
