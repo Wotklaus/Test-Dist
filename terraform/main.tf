@@ -209,7 +209,7 @@ resource "aws_lb" "app_alb" {
 
 resource "aws_lb_target_group" "app_tg" {
   name        = "app-tg"
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   health_check {
