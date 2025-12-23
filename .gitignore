@@ -18,3 +18,17 @@ Thumbs.db
 # Build output (si algún día tienes)
 dist/
 build/
+
+# Terraform: ignora estado, carpetas internas y secretos
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform/
+terraform/terraform.tfvars
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+
+# Opcional: ignora TODOS los archivos dentro de terraform/, salvo los .tf
+terraform/*
+!terraform/*.tf

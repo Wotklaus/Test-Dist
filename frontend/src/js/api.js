@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:3000';
+export const API_URL = 'http://app-alb-2009176057.us-east-1.elb.amazonaws.com';
 
 // LOGGING FUNCTION with timestamps
 function logWithTimestamp(message, type = 'info') {
