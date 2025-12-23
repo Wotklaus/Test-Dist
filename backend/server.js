@@ -9,6 +9,11 @@ const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
+
 // Para distinguir entre producción y desarrollo/local
 const isProduction = process.env.NODE_ENV === "production";
 const FRONTEND_URL = isProduction
