@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Para distinguir entre producción y desarrollo/local
 const isProduction = process.env.NODE_ENV === "production";
