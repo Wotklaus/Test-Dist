@@ -30,7 +30,7 @@ async function refreshToken() {
         logWithTimestamp("Sending refresh request using HTTP-Only cookies...", 'refresh');
 
         const startTime = Date.now();
-        const response = await fetch(`${API_URL}/api/refresh`, {
+        const response = await fetch(`${API_URL}/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: 'include' // IMPORTANT: To send HTTP-Only cookies
@@ -132,7 +132,7 @@ export async function loginUser(email, password) {
     try {
         logWithTimestamp("LOGIN ATTEMPT STARTED", 'info');
 
-        const response = await fetch(`${API_URL}/api/login`, {
+        const response = await fetch(`${API_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: 'include', // IMPORTANT: To receive HTTP-Only cookies
@@ -165,7 +165,7 @@ export async function loginUser(email, password) {
 export async function registerUser(data) {
     try {
         logWithTimestamp("REGISTRATION ATTEMPT", 'info');
-        const res = await fetch(`${API_URL}/api/register`, {
+        const res = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include', // For consistency
@@ -213,7 +213,7 @@ export function getSession() {
 export async function getFavorites() {
     logWithTimestamp("GETTING FAVORITES", 'info');
     try {
-        const response = await makeAuthenticatedRequest(`${API_URL}/api/favorites`, {
+        const response = await makeAuthenticatedRequest(`${API_URL}/favorites`, {
             method: 'GET'
         });
 
@@ -238,7 +238,7 @@ export async function getFavorites() {
 export async function addFavorite(pokemonId, pokemonName) {
     logWithTimestamp(`ADDING FAVORITE: ${pokemonName} (ID: ${pokemonId})`, 'info');
     try {
-        const response = await makeAuthenticatedRequest(`${API_URL}/api/favorites`, {
+        const response = await makeAuthenticatedRequest(`${API_URL}/favorites`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pokemon_id: pokemonId, pokemon_name: pokemonName })
@@ -261,7 +261,7 @@ export async function addFavorite(pokemonId, pokemonName) {
 export async function removeFavorite(pokemonId) {
     logWithTimestamp(`REMOVING FAVORITE: ID ${pokemonId}`, 'info');
     try {
-        const response = await makeAuthenticatedRequest(`${API_URL}/api/favorites`, {
+        const response = await makeAuthenticatedRequest(`${API_URL}/favorites`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pokemon_id: pokemonId })
