@@ -48,5 +48,5 @@ jobs:
       - name: Rolling restart AutoScaling Group (ASG)
         run: |
           aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name NOMBRE_DE_TU_ASG \
+            --auto-scaling-group-name app-asg \
             --preferences MinHealthyPercentage=100,InstanceWarmup=60
