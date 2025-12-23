@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   frontend:
-    build: ./frontend
+    image: wotklaus86682/frontbackdb:frontend    # Imagen frontend
     ports:
       - "8080:80"
     depends_on:
       - backend
 
   backend:
-    build: ./backend
+    image: wotklaus86682/frontbackdb:backend     # Imagen backend
     ports:
       - "3000:3000"
     depends_on:
