@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser'); // NEW: For reading cookies
 const { extractTokenFromCookies } = require('./src/middlewares/cookieAuth'); // NEW: Cookie middleware
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // NEW: Cookie parser middleware
 app.use(cookieParser());
