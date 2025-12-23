@@ -20,26 +20,22 @@ const FRONTEND_URL = isProduction
   ? 'https://test-dist-frontend.onrender.com'     // Cambia esto si tu frontend cambia de URL
   : 'http://localhost:3000';
 
-// CORS SETUP >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://test-dist-frontend.onrender.com'
-];
-
-// Si quieres compatibilidad con varios origins en desarrollo, deja así:
 app.use(cors({
-  origin: function (origin, callback) {
-    // Permite requests sin origin (Postman, curl)
+  origin: function(origin, callback) {
+    // Permite TODO lo que venga desde un URL de AWS ALB (.elb.amazonaws.com), localhost y tu onrender
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (
+      origin.includes('elb.amazonaws.com') ||                  // Esto acepta cualquier DNS de ALB de AWS
+      origin === 'http://localhost:3000' ||
+      origin === 'http://localhost:5173' ||
+      origin === 'https://test-dist-frontend.onrender.com'
+    ) {
       return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
     }
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  optionsSuccessStatus: 200 // Para que el preflight (OPTIONS) funcione bien
+  optionsSuccessStatus: 200
 }));
 
 // En producción pura podrías dejar solo:
