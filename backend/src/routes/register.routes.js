@@ -35,6 +35,7 @@ router.post('/', async (req, res) => {
       res.status(400).json({ error: result.error });
     }
   } catch (err) {
+    console.error("ERROR en /register:", err);  // <-- AGREGA
     res.status(500).json({ error: err.message || 'Internal server error' });
   }
 });
